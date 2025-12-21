@@ -2,110 +2,312 @@
 <html lang="zh-Hant-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Carlos 生日之旅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Carlos Bday Trip</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Google Fonts & SortableJS -->
     <link href="fonts.googleapis.com" rel="stylesheet">
+    <script src="cdn.jsdelivr.net"></script>
+    <script src="unpkg.com"></script>
+
     <style>
-        /* 這裡放 CSS */
-        :root { --fuji-blue: #003366; --snow-white: #FFFFFF; --warm-gray: #E0E0E0; }
-        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--warm-gray); margin: 0; padding-bottom: 100px; }
-        header { background: var(--fuji-blue); color: white; padding: 40px 20px 20px; text-align: center; }
-        .card { background: rgba(255,255,255,0.9); border-radius: 15px; padding: 15px; margin: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; background: white; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { flex: 1; text-align: center; background: none; border: none; font-size: 16px; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--fuji-blue); font-weight: bold; }
-        input, button, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; }
-        button { background: var(--fuji-blue); color: white; border: none; }
-        .expense-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        :root {
+            --morandi-blue: #94a7ae;
+            --morandi-gray: #e2e2e2;
+            --warm-white: #f8f9fa;
+            --text-dark: #4a4a4a;
+            --accent-gold: #c5a48e;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Zen Maru Gothic', sans-serif; 
+            background-color: var(--warm-white); 
+            color: var(--text-dark);
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: var(--morandi-blue);
+            color: white;
+            padding: 50px 20px 15px;
+            text-align: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.2rem; margin: 0; font-weight: 500; letter-spacing: 1px; }
+
+        /* 橫向日期滑動 */
+        .date-slider {
+            display: flex; overflow-x: auto; background: white;
+            padding: 10px; white-space: nowrap; gap: 10px;
+            border-bottom: 1px solid var(--morandi-gray);
+            scrollbar-width: none;
+        }
+        .date-slider::-webkit-scrollbar { display: none; }
+        .date-item {
+            padding: 8px 15px; border-radius: 20px; background: var(--morandi-gray);
+            font-size: 0.85rem; cursor: pointer; transition: 0.3s;
+        }
+        .date-item.active { background: var(--morandi-blue); color: white; }
+
+        /* 行程卡片區 */
+        .container { padding: 15px; padding-bottom: 100px; }
+        .weather-banner {
+            background: white; border-radius: 12px; padding: 10px;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+            font-size: 0.9rem; border: 1px solid #eee;
+        }
+
+        .card {
+            background: white; border-radius: 15px; padding: 15px;
+            margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--morandi-blue);
+            position: relative;
+        }
+        .type-tag { font-size: 0.7rem; color: white; background: var(--accent-gold); padding: 2px 8px; border-radius: 10px; }
+        .time-label { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .card-title { font-size: 1rem; font-weight: 700; margin: 5px 0; }
+        .note-area { background: #fdfdfd; border-top: 1px dashed #eee; margin-top: 10px; padding-top: 10px; font-size: 0.85rem; color: #666; }
+
+        /* 浮動導航 */
+        .bottom-nav {
+            position: fixed; bottom: 15px; left: 15px; right: 15px;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            height: 65px; border-radius: 30px; display: flex;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); z-index: 1000;
+        }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: none; border: none; color: #aaa; font-size: 0.65rem; }
+        .nav-btn.active { color: var(--morandi-blue); }
+
+        /* Modal 樣式 */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-height: 80%; border-radius: 20px; padding: 20px; overflow-y: auto; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .primary-btn { background: var(--morandi-blue); color: white; border: none; flex: 1; padding: 12px; border-radius: 10px; }
+
+        /* 記帳列表 */
+        .wallet-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+        .total-box { background: var(--morandi-blue); color: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+
+        /* TODO 區 */
+        .todo-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #eee; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Carlos 生日之旅</h1>
-        <p>2025/12/24 ~ 12/31</p>
-    </header>
 
-    <main>
-        <!-- 行程 -->
-        <section id="tab-schedule" class="tab-content active">
-            <div class="card">
-                <h3>📅 12/24 名古屋抵達</h3>
-                <p>📍 中部國際機場 -> 名古屋市區</p>
-                <button onclick="window.location.href='maps.apple.com'">Apple Maps 導航</button>
-            </div>
-        </section>
+<header>
+    <div class="header-top">
+        <i data-lucide="info" onclick="openView('info')"></i>
+        <h1>Carlos Bday Trip</h1>
+        <i data-lucide="shopping-bag" onclick="openView('shop')"></i>
+    </div>
+</header>
 
-        <!-- 指南 (匯率/記帳) -->
-        <section id="tab-guide" class="tab-content">
-            <div class="card">
-                <h3>💰 匯率換算</h3>
-                <input type="number" id="rate" value="0.215" step="0.001">
-                <input type="text" id="jpyExp" placeholder="輸入算式 (如 1000+500)">
-                <button onclick="calc()">計算換算</button>
-                <p>結果: <span id="res">0</span> TWD</p>
-            </div>
-            <div class="card">
-                <h3>📝 記帳</h3>
-                <input type="text" id="note" placeholder="品項">
-                <input type="number" id="amt" placeholder="日幣金額">
-                <input type="file" id="pic" accept="image/*">
-                <button onclick="saveEx()">儲存</button>
-                <ul id="list" style="list-style:none; padding:0;"></ul>
-            </div>
-        </section>
+<div class="date-slider" id="dateBar">
+    <!-- 日期由 JS 產生 -->
+</div>
 
-        <!-- 天氣 -->
-        <section id="tab-weather" class="tab-content">
-            <div class="card">
-                <h3>🌦 天氣查詢</h3>
-                <button onclick="window.location.href='weather.yahoo.co.jp'">查看日本 Yahoo 天氣</button>
-            </div>
-        </section>
-    </main>
+<div class="container" id="mainContent">
+    <!-- 內容切換 -->
+</div>
 
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="sw('tab-schedule', this)">行程</button>
-        <button class="nav-item" onclick="sw('tab-guide', this)">指南</button>
-        <button class="nav-item" onclick="sw('tab-weather', this)">天氣</button>
-    </nav>
+<!-- 底部導航 -->
+<nav class="bottom-nav">
+    <button class="nav-btn active" onclick="changeTab('trip')"><i data-lucide="map"></i>行程</button>
+    <button class="nav-btn" onclick="changeTab('todo')"><i data-lucide="check-square"></i>TODO</button>
+    <button class="nav-btn" onclick="changeTab('wallet')"><i data-lucide="wallet"></i>記帳</button>
+    <button class="nav-btn" onclick="openAddModal()"><i data-lucide="plus-circle"></i>新增</button>
+</nav>
 
-    <script>
-        // 分頁切換
-        function sw(id, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
+<!-- 新增行程 Modal -->
+<div class="modal" id="addModal">
+    <div class="modal-content">
+        <h3>新增行程項目</h3>
+        <select id="f_type" onchange="toggleNote()">
+            <option value="景點">景點</option>
+            <option value="美食">美食</option>
+            <option value="交通">交通</option>
+            <option value="航班">航班</option>
+            <option value="購物">購物</option>
+            <option value="其他">其他</option>
+        </select>
+        <input type="text" id="f_title" placeholder="地點/名稱">
+        <input type="time" id="f_time">
+        <textarea id="f_note" placeholder="備註內容..."></textarea>
+        <div class="btn-group">
+            <button class="primary-btn" onclick="saveItem()">確認新增</button>
+            <button onclick="closeModal('addModal')" style="flex:1; border:none; background:#eee; border-radius:10px;">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化資料
+    const startDate = new Date('2025-12-24');
+    let currentDayIdx = 0;
+    let currentTab = 'trip';
+    
+    let tripData = JSON.parse(localStorage.getItem('carlos_trip')) || Array(8).fill().map(() => []);
+    let walletData = JSON.parse(localStorage.getItem('carlos_wallet')) || Array(8).fill().map(() => []);
+    let todoData = JSON.parse(localStorage.getItem('carlos_todo')) || [];
+    let shopData = JSON.parse(localStorage.getItem('carlos_shop')) || [];
+
+    // 初始化介面
+    function init() {
+        lucide.createIcons();
+        renderDates();
+        renderContent();
+    }
+
+    function renderDates() {
+        const bar = document.getElementById('dateBar');
+        bar.innerHTML = '';
+        for(let i=0; i<8; i++) {
+            const d = new Date(startDate);
+            d.setDate(startDate.getDate() + i);
+            const active = i === currentDayIdx ? 'active' : '';
+            bar.innerHTML += `<div class="date-item ${active}" onclick="setDay(${i})">12/${24+i} Day ${i+1}</div>`;
         }
+    }
 
-        // 匯率計算
-        function calc() {
-            try {
-                let j = eval(document.getElementById('jpyExp').value);
-                let r = document.getElementById('rate').value;
-                document.getElementById('res').innerText = (j * r).toFixed(2);
-            } catch(e) { alert('算式錯誤'); }
-        }
+    function setDay(i) {
+        currentDayIdx = i;
+        renderDates();
+        renderContent();
+    }
 
-        // 記帳儲存
-        let data = JSON.parse(localStorage.getItem('trip_data')) || [];
-        function saveEx() {
-            let item = { n: document.getElementById('note').value, a: document.getElementById('amt').value };
-            data.push(item);
-            localStorage.setItem('trip_data', JSON.stringify(data));
-            render();
-        }
+    function changeTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.nav-btn').forEach((b,idx) => {
+            b.classList.toggle('active', ['trip','todo','wallet'].indexOf(tab) === idx);
+        });
+        renderContent();
+    }
 
-        function render() {
-            let l = document.getElementById('list');
-            l.innerHTML = data.map(i => `<li>${i.n}: ${i.a} JPY</li>`).join('');
+    async function renderContent() {
+        const main = document.getElementById('mainContent');
+        main.innerHTML = '';
+
+        if(currentTab === 'trip') {
+            // 天氣資訊區 (模擬 API)
+            main.innerHTML += `<div class="weather-banner"><i data-lucide="cloud-sun"></i> <span>名古屋 12/${24+currentDayIdx}: 3°C ~ 11°C (晴時多雲) 建議穿著保暖大衣</span></div>`;
+            
+            const listContainer = document.createElement('div');
+            listContainer.id = 'sortable-list';
+            
+            tripData[currentDayIdx].forEach((item, idx) => {
+                listContainer.innerHTML += `
+                    <div class="card" data-idx="${idx}">
+                        <div style="display:flex; justify-content:space-between">
+                            <span class="type-tag">${item.type}</span>
+                            <i data-lucide="trash-2" size="16" onclick="deleteItem(${idx})"></i>
+                        </div>
+                        <div class="time-label">${item.time || '未定時'}</div>
+                        <div class="card-title">${item.title}</div>
+                        ${item.type === '景點' || item.note ? `<div class="note-area">${item.note || '暫無備註'}</div>` : ''}
+                        <button onclick="goMap('${item.title}')" style="margin-top:10px; font-size:0.7rem; border:none; background:none; color:var(--morandi-blue); padding:0">
+                            <i data-lucide="map-pin" size="12"></i> Google Map 導航
+                        </button>
+                    </div>
+                `;
+            });
+            main.appendChild(listContainer);
+            
+            // 啟用拖拽
+            new Sortable(listContainer, {
+                animation: 150,
+                onEnd: (evt) => {
+                    const items = tripData[currentDayIdx];
+                    const [movedItem] = items.splice(evt.oldIndex, 1);
+                    items.splice(evt.newIndex, 0, movedItem);
+                    saveAll();
+                }
+            });
+
+        } else if(currentTab === 'wallet') {
+            let dayTotalJPY = walletData[currentDayIdx].reduce((s,v) => s + Number(v.jpy), 0);
+            main.innerHTML = `
+                <div class="total-box">
+                    <div>本日小計 (Day ${currentDayIdx+1})</div>
+                    <h2 style="margin:5px 0">¥ ${dayTotalJPY} / NT$ ${(dayTotalJPY*0.215).toFixed(0)}</h2>
+                </div>
+                <div class="card">
+                    <input type="text" id="w_name" placeholder="消費品項">
+                    <input type="number" id="w_jpy" placeholder="日幣金額">
+                    <button class="primary-btn" onclick="addWallet()">紀錄支出</button>
+                </div>
+                <div id="walletList"></div>
+            `;
+            const wList = document.getElementById('walletList');
+            walletData[currentDayIdx].forEach((w, i) => {
+                wList.innerHTML += `
+                    <div class="wallet-item">
+                        <span>${w.name}</span>
+                        <span>¥${w.jpy} <i data-lucide="x" size="14" onclick="delWallet(${i})"></i></span>
+                    </div>
+                `;
+            });
+        } else if(currentTab === 'todo') {
+             main.innerHTML = `<h3>Travel TODO</h3><div class="card" id="todoList"></div>
+             <input type="text" id="t_input" placeholder="新增待辦事項..." onkeypress="if(event.key==='Enter')addTodo()">`;
+             const tList = document.getElementById('todoList');
+             todoData.forEach((t, i) => {
+                tList.innerHTML += `<div class="todo-item"><input type="checkbox"> <span>${t}</span></div>`;
+             });
         }
-        render();
-    </script>
+        lucide.createIcons();
+    }
+
+    // 功能函數
+    function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    function saveItem() {
+        const item = {
+            type: document.getElementById('f_type').value,
+            title: document.getElementById('f_title').value,
+            time: document.getElementById('f_time').value,
+            note: document.getElementById('f_note').value
+        };
+        if(!item.title) return alert('請填寫地點');
+        tripData[currentDayIdx].push(item);
+        saveAll();
+        closeModal('addModal');
+        renderContent();
+    }
+
+    function addWallet() {
+        const n = document.getElementById('w_name').value;
+        const j = document.getElementById('w_jpy').value;
+        if(!n || !j) return;
+        walletData[currentDayIdx].push({name:n, jpy:j});
+        saveAll();
+        renderContent();
+    }
+
+    function deleteItem(idx) { tripData[currentDayIdx].splice(idx, 1); saveAll(); renderContent(); }
+    function delWallet(idx) { walletData[currentDayIdx].splice(idx, 1); saveAll(); renderContent(); }
+    function addTodo() { const v = document.getElementById('t_input').value; todoData.push(v); saveAll(); renderContent(); }
+
+    function goMap(dest) {
+        window.open(`www.google.com{encodeURIComponent(dest)}&travelmode=transit`);
+    }
+
+    function saveAll() {
+        localStorage.setItem('carlos_trip', JSON.stringify(tripData));
+        localStorage.setItem('carlos_wallet', JSON.stringify(walletData));
+        localStorage.setItem('carlos_todo', JSON.stringify(todoData));
+        localStorage.setItem('carlos_shop', JSON.stringify(shopData));
+    }
+
+    init();
+</script>
+
 </body>
 </html>
