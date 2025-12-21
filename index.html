@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Carlos 生日之旅 PWA</title>
+    <!-- PWA Meta Tags for iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="placehold.co">
+    
+    <link rel="stylesheet" href="style.css">
+    <!-- 使用清楚易讀的字體 Zen Maru Gothic -->
+    <link href="fonts.googleapis.com" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 背景裝飾 -->
+    <div class="background-deco"></div>
+
+    <div id="app-container">
+        <!-- Header -->
+        <header>
+            <h1>Carlos 生日之旅</h1>
+            <p>2025/12/24 ~ 2025/12/31</p>
+        </header>
+
+        <!-- Main Content Area (Tabs Content) -->
+        <main>
+            <!-- Tab 1: 行程 -->
+            <section id="tab-schedule" class="tab-content active">
+                <div class="weather-info-box">
+                    <h3>📅 12月24日天氣</h3>
+                    <p id="weather-display">載入中... (範例：東京 5°C - 12°C, 晴天)</p>
+                    <p id="weather-tip">💡 **提醒：** 天氣寒冷，請務必攜帶厚外套、圍巾與手套！</p>
+                </div>
+                <!-- 行程卡片範例，後續可自行增加 -->
+                <div class="schedule-card">
+                    <div class="card-header">
+                        <span>🎄 12:00 PM</span>
+                        <span>交通: JR (30min)</span>
+                    </div>
+                    <h4>抵達名古屋中部機場</h4>
+                    <p>領取行李後，搭乘名鐵前往名古屋市區飯店 Check-in。</p>
+                    <p>餐食：飛機餐</p>
+                    <button onclick="window.location.href='maps.apple.com';">使用 Apple Maps 導航</button>
+                </div>
+                <div class="schedule-card">
+                    <div class="card-header">
+                        <span>🕒 15:00 PM</span>
+                        <span>交通: 地鐵 (15min)</span>
+                    </div>
+                    <h4>名古屋城觀光</h4>
+                    <p>下午參觀歷史悠久的名古屋城，感受日式歷史。</p>
+                    <p>餐食：晚餐：蓬萊軒鰻魚飯</p>
+                </div>
+            </section>
+
+            <!-- Tab 2: 指南 (Wallet & Lists) -->
+            <section id="tab-guide" class="tab-content">
+                <h2>WALLET (記帳與匯率)</h2>
+                <div class="wallet-section">
+                    <!-- 匯率計算機 -->
+                    <div class="calculator card">
+                        <h3>即時匯率換算 (JPY to TWD)</h3>
+                        <label for="exchangeRate">當前匯率 (JPY 100 = TWD):</label>
+                        <input type="number" id="exchangeRate" value="21.5" step="0.1">
+                        <input type="text" id="jpyInput" placeholder="輸入日幣金額 (e.g., 500+200*3)">
+                        <button onclick="calculateExchange()">計算並換算</button>
+                        <p>總日幣金額: <strong id="totalJpy">0 JPY</strong></p>
+                        <p>約台幣金額: <strong id="totalTwd">0 TWD</strong></p>
+                    </div>
+
+                    <!-- 記帳功能 -->
+                    <div class="accounting card">
+                        <h3>新增一筆消費</h3>
+                        <input type="text" id="itemDescription" placeholder="品項 (e.g., 晚餐)">
+                        <input type="number" id="itemAmount" placeholder="日幣金額 (JPY)">
+                        <input type="file" id="itemPhoto" accept="image/*" style="display: none;">
+                        <button onclick="document.getElementById('itemPhoto').click()">📸 上傳照片</button>
+                        <button onclick="saveExpense()">儲存記帳</button>
+                    </div>
+
+                    <!-- 記帳列表 -->
+                    <div class="expense-list card">
+                        <h3>記帳歷史</h3>
+                        <ul id="expenseList">
+                            <!-- Expenses will be added here by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>LISTS (清單與備忘錄)</h2>
+                <div class="lists-section">
+                    <div class="card">
+                        <h3>行前準備 CheckList</h3>
+                        <ul id="checkList">
+                            <li><label><input type="checkbox"> 護照、簽證</label></li>
+                            <li><label><input type="checkbox"> 機票、飯店預約單</label></li>
+                            <li><label><input type="checkbox"> 日幣現金、信用卡</label></li>
+                            <li><label><input type="checkbox"> 禦寒衣物、圍巾、手套</label></li>
+                            <li><label><input type="checkbox"> 行動電源、充電線</label></li>
+                            <!-- More items can be added here or via JS -->
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3>個人備忘錄</h3>
+                        <textarea id="memoArea" placeholder="輸入備忘錄，網址會自動轉換為連結..."></textarea>
+                        <div id="memoDisplay"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab 3: 天氣 (Placeholder for advanced functionality) -->
+            <section id="tab-weather" class="tab-content">
+                <h2>天氣預報 (Nagoya + Tokyo)</h2>
+                <div class="card">
+                    <p>此頁面未來可以串接天氣 API。</p>
+                    <p>目前請參考「行程」頁籤的每日提醒。</p>
+                    <a href="weather.yahoo.co.jp" target="_blank">前往 Yahoo! Weather 查詢</a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Floating Navigation Bar -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('tab-schedule', this)">行程</button>
+            <button class="nav-item" onclick="switchTab('tab-guide', this)">指南</button>
+            <button class="nav-item" onclick="switchTab('tab-weather', this)">天氣</button>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
