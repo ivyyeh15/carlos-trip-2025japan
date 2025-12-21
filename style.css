@@ -1,0 +1,183 @@
+:root {
+    --fuji-blue: #003366; /* 主色：深富士藍 */
+    --snow-white: #FFFFFF; /* 雪白 */
+    --warm-gray: #E0E0E0; /* 暖灰 */
+    --card-bg: rgba(255, 255, 255, 0.9); /* 卡片半透明背景 */
+    --accent-color: #FF69B4; /* 可愛粉色點綴 */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background-color: var(--warm-gray);
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.background-deco {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #a0c4ff 0%, #bdb2ff 50%, #ffc6ff 100%);
+    opacity: 0.8;
+    z-index: -1;
+}
+
+#app-container {
+    max-width: 600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: var(--fuji-blue);
+    color: var(--snow-white);
+    padding: 40px 20px 20px; /* Extra padding for iOS status bar area */
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+main {
+    flex-grow: 1;
+    padding: 20px 10px 80px; /* Bottom padding for the floating nav */
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 日式圓角卡片風格 */
+.card, .schedule-card, .weather-info-box {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px); /* 磨砂玻璃效果 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.weather-info-box h3 { color: var(--fuji-blue); }
+.weather-tip { color: var(--accent-color); font-weight: bold; }
+
+.schedule-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: var(--fuji-blue);
+    color: var(--snow-white);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #004080;
+}
+
+input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--warm-gray);
+    font-family: inherit;
+}
+
+/* Bottom Floating Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--card-bg);
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    /* safe area padding for modern iPhones */
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+    background: none;
+    color: #888;
+    padding: 5px 10px;
+    width: auto;
+}
+
+.nav-item.active {
+    color: var(--fuji-blue);
+    font-weight: bold;
+    border-bottom: 2px solid var(--fuji-blue);
+}
+
+/* Wallet & Lists Specific Styles */
+#expenseList li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--warm-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.expense-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+#memoDisplay a {
+    color: var(--fuji-blue);
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    margin-top: 5px;
+}
+
+#checkList li label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+#checkList input[type="checkbox"] {
+    margin-right: 10px;
+}
