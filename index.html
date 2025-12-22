@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Carlos Bday Trip</title>
+    <title>Carlos Bday Trip 2025</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,50 +14,59 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        header { background: var(--blue); color: white; padding: 50px 20px 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 10px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
+        /* Header */
+        header { background: var(--blue); color: white; padding: 50px 20px 10px; text-align: center; position: sticky; top: 0; z-index: 100; }
+        
+        /* 星期+日期 橫向滑動 */
+        .date-slider { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
         .date-slider::-webkit-scrollbar { display: none; }
-        .date-btn { padding: 8px 18px; border-radius: 20px; background: #eee; font-size: 0.8rem; flex-shrink: 0; cursor: pointer; border:none; color: #777; }
-        .date-btn.active { background: var(--blue); color: white; }
+        .date-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; height: 75px; border-radius: 15px; background: #f0f0f0; border: none; flex-shrink: 0; }
+        .date-btn .wk { font-size: 1.1rem; font-weight: 700; color: #888; }
+        .date-btn .dt { font-size: 0.8rem; color: #aaa; }
+        .date-btn.active { background: var(--blue); }
+        .date-btn.active .wk, .date-btn.active .dt { color: white; }
 
         .container { padding: 15px; }
-        .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
         
-        /* 記帳專用樣式 */
-        .day-sum-card { background: var(--blue); color: white; padding: 12px 18px; border-radius: 15px; margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
-        .wallet-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
-        .pay-method { font-size: 0.7rem; color: var(--blue); border: 1px solid var(--blue); padding: 1px 6px; border-radius: 4px; margin-right: 5px; }
-        .twd-amt { font-size: 0.75rem; color: #999; display: block; text-align: right; }
+        /* 天氣資訊 */
+        .weather-info { background: white; border-radius: 15px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
+        .weather-icon { font-size: 2rem; }
+        
+        /* 航班特殊卡片 */
+        .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* 一般行程卡片 */
+        .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
+        .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 10px; border-radius: 12px; margin-bottom: 8px; display: inline-block; }
+        
+        /* 交通間隔 */
+        .trans-gap { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 0; color: var(--blue); font-size: 0.8rem; font-weight: bold; }
+        .trans-icon { cursor: pointer; opacity: 0.4; font-size: 1.2rem; }
+        .trans-icon.active { opacity: 1; transform: scale(1.2); }
 
+        /* 浮動新增按鈕 */
         .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; }
-        .fab svg { width: 30px; height: 30px; stroke: white; stroke-width: 3; stroke-linecap: round; }
+        .fab svg { width: 28px; height: 28px; stroke: white; stroke-width: 3; }
 
+        /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
-        .field-lbl { font-size: 0.8rem; color: #888; margin: 12px 0 4px 4px; display: block; }
-        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 5px; border: 1px solid #eee; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #fcfcfc; }
-        .save-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; font-size: 1rem; }
-        .cancel-btn { width: 100%; border: none; background: none; color: #aaa; margin-top: 15px; padding: 10px; font-size: 0.9rem; }
-
+        .modal-content { background: white; width: 92%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
+        label { font-size: 0.8rem; color: #888; margin-top: 12px; display: block; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 1rem; background: #fafafa; }
+        
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
         .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
         .nav-tab.active { color: var(--blue); font-weight: bold; }
-        
-        .del-btn-mini { border:none; background:none; color:#ddd; margin-left:10px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1 style="font-size:1.1rem; letter-spacing:1px; margin:0;">Carlos Bday Trip</h1>
-</header>
+<header><h1 style="font-size:1.1rem; letter-spacing:1px; margin:0;">Carlos Bday Trip</h1></header>
 
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
 
-<button class="fab" id="fabBtn" onclick="openModal()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-</button>
+<button class="fab" id="fabBtn" onclick="openModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
 
 <nav class="bottom-nav">
     <button class="nav-tab active" onclick="goTab('trip')">行程</button>
@@ -65,40 +74,35 @@
     <button class="nav-tab" onclick="goTab('wallet')">記帳</button>
 </nav>
 
-<div id="modal" class="modal">
-    <div class="modal-content" id="modalInner"></div>
-</div>
+<div id="modal" class="modal"><div class="modal-content" id="modalInner"></div></div>
 
 <script>
-    let day = 0, tab = 'trip';
-    const store = (key, val) => val ? localStorage.setItem(key, JSON.stringify(val)) : JSON.parse(localStorage.getItem(key));
+    let day = 0, tab = 'trip', editIdx = null;
+    const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const store = (k, v) => v ? localStorage.setItem(k, JSON.stringify(v)) : JSON.parse(localStorage.getItem(k));
     
-    let tripData = store('c_trip') || Array(8).fill().map(()=>[]);
-    let wallData = store('c_wall_global') || []; // 改為全域清單
+    let tripData = store('c_trip_2025') || Array(8).fill().map(()=>[]);
     let todoData = store('c_todo') || [];
-    let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
+    let wallData = store('c_wall_global') || [];
 
-    const save = () => { 
-        store('c_trip', tripData); 
-        store('c_wall_global', wallData); 
-        store('c_todo', todoData); 
-        localStorage.setItem('c_rate', exchangeRate);
-    };
+    const save = () => { store('c_trip_2025', tripData); store('c_todo', todoData); store('c_wall_global', wallData); };
 
     function goTab(t) { tab = t; render(); }
 
     function render() {
         const view = document.getElementById('mainView');
         const slider = document.getElementById('dateSlider');
-        const fab = document.getElementById('fabBtn');
-        
         slider.style.display = (tab === 'trip') ? 'flex' : 'none';
-        fab.style.display = (tab === 'todo' || tab === 'trip' || tab === 'wallet') ? 'flex' : 'none';
-
+        
         if(tab === 'trip') {
             slider.innerHTML = '';
             for(let i=0; i<8; i++) {
-                slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">12/${24+i} D${i+1}</button>`;
+                let d = new Date(2025, 11, 24 + i);
+                slider.innerHTML += `
+                <button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">
+                    <span class="wk">${weekdays[d.getDay()]}</span>
+                    <span class="dt">${d.getDate()}</span>
+                </button>`;
             }
         }
 
@@ -106,16 +110,47 @@
 
         let h = '';
         if(tab === 'trip') {
-            h = `<div id="drag-list">`;
-            tripData[day].forEach((it, i) => {
+            // 天氣
+            h += `<div class="weather-info"><span class="weather-icon">❄️</span><div><div style="font-weight:700">Nagoya 4°C</div><div style="font-size:0.8rem;color:#888;">體感 1°C / 降雨機率 10%</div></div></div>`;
+            
+            // 12/24 航班資訊
+            if(day === 0) {
                 h += `
-                <div class="card">
-                    <button style="position:absolute;right:15px;top:15px;border:none;background:none;color:#ddd;" onclick="delIt(${i})">✕</button>
+                <div class="flight-card" onclick="window.open('www.google.com')">
+                    <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">DEPARTURE FLIGHT</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:1.8rem; font-weight:700;">TPE</span>
+                        <span style="font-size:1.2rem;">✈️</span>
+                        <span style="font-size:1.8rem; font-weight:700;">NGO</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.9rem;">
+                        <span>CI154 | 07:35 - 11:05</span>
+                        <span>Duration: 2.5hr</span>
+                    </div>
+                </div>`;
+            }
+
+            h += `<div id="drag-list">`;
+            tripData[day].forEach((it, i) => {
+                // 交通時間
+                if(i >= 0) {
+                    h += `
+                    <div class="trans-gap">
+                        <span class="trans-icon ${it.mode==='walk'?'active':''}" onclick="setMode(${i},'walk')">🚶</span>
+                        <span class="trans-icon ${it.mode==='car'?'active':''}" onclick="setMode(${i},'car')">🚗</span>
+                        <span class="trans-icon ${it.mode==='bus'?'active':''}" onclick="setMode(${i},'bus')">🚌</span>
+                        <span style="margin-left:5px;">${it.transTime || '15'} min</span>
+                    </div>`;
+                }
+
+                h += `
+                <div class="card" onclick="window.open('www.google.com{encodeURIComponent(it.title)}')">
+                    <button style="position:absolute;right:10px;top:10px;border:none;background:none;color:#ddd;padding:10px;" onclick="event.stopPropagation();openEdit(${i})">Edit</button>
                     <span class="type-tag">${it.type}</span>
-                    <span class="time-label">🕒 ${it.time || '未定時'}</span>
-                    <div style="font-weight:700; font-size:1.1rem; margin-top:5px;">${it.title}</div>
-                    ${it.addr ? `<div style="font-size:0.8rem;color:#888;text-decoration:underline;margin-top:5px;" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
-                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:10px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">${it.note}</div>` : ''}
+                    <div style="font-weight:700; font-size:1.2rem;">${it.title}</div>
+                    <div style="font-size:0.85rem; color:var(--blue); margin-top:5px;">🕒 ${it.time || '--:--'} | ${it.hours || '營業時間未定'}</div>
+                    ${it.type==='景點'?`<div style="font-size:0.8rem; color:#c5a48e; font-weight:700;">Ticket: ${it.ticket || 'None'}</div>`:''}
+                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:10px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">✨ ${it.note}</div>` : ''}
                 </div>`;
             });
             h += `</div>`;
@@ -125,127 +160,68 @@
                     let items = tripData[day];
                     let [moved] = items.splice(e.oldIndex, 1);
                     items.splice(e.newIndex, 0, moved);
-                    save();
+                    save(); render();
                 }});
             }
-        } else if(tab === 'todo') {
-            h = `<div class="card"><h3>待辦事項</h3>`;
-            todoData.forEach((t, i) => {
-                h += `<div style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0;">
-                    <input type="checkbox" style="width:20px; height:20px; margin-right:10px;">
-                    <span style="flex:1">${t}</span>
-                    <button onclick="todoData.splice(${i},1);save();render()" style="border:none; background:none; color:#ccc;">✕</button>
-                </div>`;
-            });
-            h += `</div>`;
-            view.innerHTML = h;
-        } else if(tab === 'wallet') {
-            h = `<div class="card" style="margin-bottom:20px;">
-                <span class="field-lbl">兌換匯率 (JPY 1 = TWD)</span>
-                <input type="number" step="0.001" id="rateInput" value="${exchangeRate}" onchange="exchangeRate=this.value;save();render()">
-            </div>`;
-            
-            // 按日期分組
-            const groups = wallData.reduce((acc, curr) => {
-                acc[curr.date] = acc[curr.date] || [];
-                acc[curr.date].push(curr);
-                return acc;
-            }, {});
-
-            let grandTotalJPY = 0;
-            Object.keys(groups).sort().forEach(d => {
-                let dayTotal = groups[d].reduce((a,b)=>a+Number(b.amt),0);
-                grandTotalJPY += dayTotal;
-                h += `<div class="day-sum-card">
-                    <span>${d} 小計</span>
-                    <span>¥${dayTotal} / NT$${(dayTotal*exchangeRate).toFixed(0)}</span>
-                </div>`;
-                groups[d].forEach((w, idx) => {
-                    h += `<div class="card" style="margin-bottom:8px; padding:12px 18px;">
-                        <div class="wallet-item">
-                            <span><span class="pay-method">${w.pay}</span><b style="color:var(--blue)">${w.who}</b> ${w.name}</span>
-                            <span style="text-align:right">
-                                <b>¥${w.amt}</b>
-                                <span class="twd-amt">≈ NT$${(w.amt*exchangeRate).toFixed(0)}</span>
-                            </span>
-                            <button class="del-btn-mini" onclick="deleteExpense('${w.id}')">✕</button>
-                        </div>
-                    </div>`;
-                });
-            });
-
-            h += `<div class="card" style="background:#4a4a4a; color:white; margin-top:30px; text-align:center;">
-                <div style="font-size:0.8rem;">本次旅行總支出統計</div>
-                <div style="font-size:1.6rem; font-weight:700; margin-top:5px;">¥${grandTotalJPY} / NT$${(grandTotalJPY*exchangeRate).toFixed(0)}</div>
-            </div>`;
-            view.innerHTML = h;
+        } else {
+            view.innerHTML = `<p style="text-align:center; padding:50px; color:#ccc;">其他分頁功能維護中...</p>`;
         }
     }
 
     function openModal() {
+        editIdx = null;
         const inner = document.getElementById('modalInner');
-        if(tab === 'trip') {
-            inner.innerHTML = `
-                <h3>新增行程</h3>
-                <span class="field-lbl">分類</span>
-                <select id="m_type"><option>景點</option><option>美食</option><option>交通</option><option>航班</option><option>購物</option></select>
-                <span class="field-lbl">地點名稱</span><input type="text" id="m_title">
-                <span class="field-lbl">時間設定</span><input type="time" id="m_time">
-                <span class="field-lbl">地址</span><input type="text" id="m_addr">
-                <span class="field-lbl">備註</span><textarea id="m_note" rows="3"></textarea>
-                <button class="save-btn" onclick="addTr()">儲存行程</button>
-                <button class="cancel-btn" onclick="closeModal()">取消</button>`;
-        } else if(tab === 'todo') {
-            inner.innerHTML = `<h3>新增 TODO</h3><input type="text" id="m_t"><button class="save-btn" onclick="addTd()">新增</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
-        } else {
-            inner.innerHTML = `<h3>新增開支</h3>
-                <span class="field-lbl">日期</span>
-                <select id="m_w_d">
-                    <option value="2025-12-24">12/24 Day 1</option><option value="2025-12-25">12/25 Day 2</option>
-                    <option value="2025-12-26">12/26 Day 3</option><option value="2025-12-27">12/27 Day 4</option>
-                    <option value="2025-12-28">12/28 Day 5</option><option value="2025-12-29">12/29 Day 6</option>
-                    <option value="2025-12-30">12/30 Day 7</option><option value="2025-12-31">12/31 Day 8</option>
-                </select>
-                <span class="field-lbl">支付人</span><select id="m_w_who"><option>Carlos</option><option>Ivy</option></select>
-                <span class="field-lbl">付款方式</span><select id="m_w_p"><option>現金</option><option>信用卡</option><option>交通卡</option></select>
-                <span class="field-lbl">品項名稱</span><input type="text" id="m_w_n">
-                <span class="field-lbl">日幣金額 (JPY)</span><input type="number" id="m_w_a">
-                <button class="save-btn" onclick="addWa()">儲存紀錄</button>
-                <button class="cancel-btn" onclick="closeModal()">取消</button>`;
-        }
+        inner.innerHTML = `
+            <h3 style="margin:0">新增行程</h3>
+            <label>分類</label>
+            <select id="m_type"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>其他</option></select>
+            <label>名稱</label><input type="text" id="m_title">
+            <label>抵達時間</label><input type="time" id="m_time">
+            <label>營業時間 / 交通耗時(min)</label><input type="text" id="m_hours" placeholder="e.g. 09:00-17:00 或 20">
+            <label>門票 (景點適用)</label><input type="text" id="m_ticket">
+            <label>特色 & 備註</label><textarea id="m_note" rows="3"></textarea>
+            <button class="save-btn" onclick="addTr()" style="background:var(--blue); color:white; border:none; padding:15px; border-radius:12px; width:100%; margin-top:20px; font-weight:700;">儲存行程</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
         document.getElementById('modal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    
+    function openEdit(i) {
+        editIdx = i;
+        const it = tripData[day][i];
+        const inner = document.getElementById('modalInner');
+        inner.innerHTML = `
+            <h3>編輯行程</h3>
+            <label>分類</label><select id="m_type"><option ${it.type==='景點'?'selected':''}>景點</option><option ${it.type==='住宿'?'selected':''}>住宿</option><option ${it.type==='美食'?'selected':''}>美食</option><option ${it.type==='購物'?'selected':''}>購物</option><option ${it.type==='其他'?'selected':''}>其他</option></select>
+            <label>名稱</label><input type="text" id="m_title" value="${it.title}">
+            <label>抵達時間</label><input type="time" id="m_time" value="${it.time}">
+            <label>營業時間 / 交通耗時(min)</label><input type="text" id="m_hours" value="${it.hours || ''}">
+            <label>門票</label><input type="text" id="m_ticket" value="${it.ticket || ''}">
+            <label>特色 & 備註</label><textarea id="m_note" rows="3">${it.note || ''}</textarea>
+            <button onclick="addTr()" style="background:var(--blue); color:white; border:none; padding:15px; border-radius:12px; width:100%; margin-top:20px; font-weight:700;">儲存變更</button>
+            <button onclick="delTr()" style="background:#ff6b6b; color:white; border:none; padding:12px; border-radius:12px; width:100%; margin-top:10px;">刪除行程</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
     function addTr() {
-        tripData[day].push({ type: document.getElementById('m_type').value, title: document.getElementById('m_title').value || '未命名', time: document.getElementById('m_time').value, addr: document.getElementById('m_addr').value, note: document.getElementById('m_note').value });
-        save(); render(); closeModal();
-    }
-    
-    function addTd() { todoData.push(document.getElementById('m_t').value); save(); render(); closeModal(); }
-    
-    function addWa() {
-        const item = {
-            id: Date.now().toString(),
-            date: document.getElementById('m_w_d').value,
-            who: document.getElementById('m_w_who').value,
-            pay: document.getElementById('m_w_p').value,
-            name: document.getElementById('m_w_n').value || '未命名開支',
-            amt: document.getElementById('m_w_a').value || 0
+        const data = { 
+            type: document.getElementById('m_type').value, 
+            title: document.getElementById('m_title').value || '未命名', 
+            time: document.getElementById('m_time').value, 
+            hours: document.getElementById('m_hours').value,
+            ticket: document.getElementById('m_ticket').value,
+            note: document.getElementById('m_note').value,
+            mode: 'walk',
+            transTime: document.getElementById('m_hours').value || '15'
         };
-        wallData.push(item);
+        if(editIdx !== null) tripData[day][editIdx] = data;
+        else tripData[day].push(data);
         save(); render(); closeModal();
     }
 
-    function deleteExpense(id) {
-        if(confirm('確定刪除此筆紀錄？')) {
-            wallData = wallData.filter(item => item.id !== id);
-            save(); render();
-        }
-    }
-
-    function delIt(i) { if(confirm('確定刪除？')) { tripData[day].splice(i,1); save(); render(); } }
+    function delTr() { if(confirm('確定刪除這個行程嗎？')) { tripData[day].splice(editIdx, 1); save(); render(); closeModal(); } }
+    function setMode(i, m) { tripData[day][i].mode = m; save(); render(); }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     render();
 </script>
