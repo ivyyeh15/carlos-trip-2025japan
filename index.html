@@ -14,8 +14,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* Header */
-        header { background: var(--blue); color: white; padding: 50px 20px 10px; text-align: center; position: sticky; top: 0; z-index: 100; }
+        header { background: var(--blue); color: white; padding: 50px 20px 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
         
         /* 星期+日期 橫向滑動 */
         .date-slider { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
@@ -30,30 +29,26 @@
         
         /* 天氣資訊 */
         .weather-info { background: white; border-radius: 15px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
-        .weather-icon { font-size: 2rem; }
         
         /* 航班特殊卡片 */
-        .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* 一般行程卡片 */
-        .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
+        /* 行程卡片 */
+        .card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: grab; }
         .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 10px; border-radius: 12px; margin-bottom: 8px; display: inline-block; }
-        
-        /* 交通間隔 */
-        .trans-gap { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 0; color: var(--blue); font-size: 0.8rem; font-weight: bold; }
-        .trans-icon { cursor: pointer; opacity: 0.4; font-size: 1.2rem; }
-        .trans-icon.active { opacity: 1; transform: scale(1.2); }
+        .addr-text { font-size: 0.8rem; color: var(--blue); margin-top: 8px; display: flex; align-items: center; gap: 5px; text-decoration: underline; }
 
         /* 浮動新增按鈕 */
         .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; }
-        .fab svg { width: 28px; height: 28px; stroke: white; stroke-width: 3; }
+        .fab svg { width: 30px; height: 30px; stroke: white; stroke-width: 3; }
 
         /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: white; width: 92%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
         label { font-size: 0.8rem; color: #888; margin-top: 12px; display: block; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 1rem; background: #fafafa; }
-        
+        .save-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; }
+
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
         .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
         .nav-tab.active { color: var(--blue); font-weight: bold; }
@@ -66,7 +61,9 @@
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
 
-<button class="fab" id="fabBtn" onclick="openModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+<button class="fab" onclick="openModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+</button>
 
 <nav class="bottom-nav">
     <button class="nav-tab active" onclick="goTab('trip')">行程</button>
@@ -77,15 +74,15 @@
 <div id="modal" class="modal"><div class="modal-content" id="modalInner"></div></div>
 
 <script>
-    let day = 0, tab = 'trip', editIdx = null;
+    let dayIdx = 0, tab = 'trip', editIdx = null;
     const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const store = (k, v) => v ? localStorage.setItem(k, JSON.stringify(v)) : JSON.parse(localStorage.getItem(k));
     
-    let tripData = store('c_trip_2025') || Array(8).fill().map(()=>[]);
+    let tripData = store('c_trip_2025_v2') || Array(8).fill().map(()=>[]);
     let todoData = store('c_todo') || [];
     let wallData = store('c_wall_global') || [];
 
-    const save = () => { store('c_trip_2025', tripData); store('c_todo', todoData); store('c_wall_global', wallData); };
+    const save = () => { store('c_trip_2025_v2', tripData); store('c_todo', todoData); store('c_wall_global', wallData); };
 
     function goTab(t) { tab = t; render(); }
 
@@ -99,7 +96,7 @@
             for(let i=0; i<8; i++) {
                 let d = new Date(2025, 11, 24 + i);
                 slider.innerHTML += `
-                <button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">
+                <button class="date-btn ${i===dayIdx?'active':''}" onclick="dayIdx=${i};render()">
                     <span class="wk">${weekdays[d.getDay()]}</span>
                     <span class="dt">${d.getDate()}</span>
                 </button>`;
@@ -110,61 +107,46 @@
 
         let h = '';
         if(tab === 'trip') {
-            // 天氣
-            h += `<div class="weather-info"><span class="weather-icon">❄️</span><div><div style="font-weight:700">Nagoya 4°C</div><div style="font-size:0.8rem;color:#888;">體感 1°C / 降雨機率 10%</div></div></div>`;
+            h += `<div class="weather-info"><span style="font-size:2rem">❄️</span><div><div style="font-weight:700">Nagoya 12/${24+dayIdx}</div><div style="font-size:0.8rem;color:#888;">預估 4°C / 體感 1°C</div></div></div>`;
             
-            // 12/24 航班資訊
-            if(day === 0) {
+            if(dayIdx === 0) {
                 h += `
                 <div class="flight-card" onclick="window.open('www.google.com')">
-                    <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">DEPARTURE FLIGHT</div>
+                    <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">華航 CI154 | 12/24</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:1.8rem; font-weight:700;">TPE</span>
                         <span style="font-size:1.2rem;">✈️</span>
                         <span style="font-size:1.8rem; font-weight:700;">NGO</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.9rem;">
-                        <span>CI154 | 07:35 - 11:05</span>
-                        <span>Duration: 2.5hr</span>
-                    </div>
+                    <div style="font-size:0.9rem; margin-top:10px;">07:35起飛 - 11:05抵達 (2.5hr)</div>
                 </div>`;
             }
 
             h += `<div id="drag-list">`;
-            tripData[day].forEach((it, i) => {
-                // 交通時間
-                if(i >= 0) {
-                    h += `
-                    <div class="trans-gap">
-                        <span class="trans-icon ${it.mode==='walk'?'active':''}" onclick="setMode(${i},'walk')">🚶</span>
-                        <span class="trans-icon ${it.mode==='car'?'active':''}" onclick="setMode(${i},'car')">🚗</span>
-                        <span class="trans-icon ${it.mode==='bus'?'active':''}" onclick="setMode(${i},'bus')">🚌</span>
-                        <span style="margin-left:5px;">${it.transTime || '15'} min</span>
-                    </div>`;
-                }
-
+            tripData[dayIdx].forEach((it, i) => {
                 h += `
-                <div class="card" onclick="window.open('www.google.com{encodeURIComponent(it.title)}')">
+                <div class="card">
                     <button style="position:absolute;right:10px;top:10px;border:none;background:none;color:#ddd;padding:10px;" onclick="event.stopPropagation();openEdit(${i})">Edit</button>
                     <span class="type-tag">${it.type}</span>
                     <div style="font-weight:700; font-size:1.2rem;">${it.title}</div>
-                    <div style="font-size:0.85rem; color:var(--blue); margin-top:5px;">🕒 ${it.time || '--:--'} | ${it.hours || '營業時間未定'}</div>
-                    ${it.type==='景點'?`<div style="font-size:0.8rem; color:#c5a48e; font-weight:700;">Ticket: ${it.ticket || 'None'}</div>`:''}
-                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:10px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">✨ ${it.note}</div>` : ''}
+                    <div style="font-size:0.85rem; color:#888; margin-top:5px;">🕒 ${it.time || '--:--'} | 營業: ${it.hours || '無'}</div>
+                    ${it.ticket ? `<div style="font-size:0.8rem; color:var(--accent); margin-top:3px;">🎟️ 門票: ${it.ticket}</div>` : ''}
+                    ${it.addr ? `<div class="addr-text" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
+                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:12px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">✨ ${it.note}</div>` : ''}
                 </div>`;
             });
             h += `</div>`;
             view.innerHTML = h;
             if(document.getElementById('drag-list')) {
                 new Sortable(document.getElementById('drag-list'), { animation: 150, onEnd: (e) => {
-                    let items = tripData[day];
+                    let items = tripData[dayIdx];
                     let [moved] = items.splice(e.oldIndex, 1);
                     items.splice(e.newIndex, 0, moved);
                     save(); render();
                 }});
             }
         } else {
-            view.innerHTML = `<p style="text-align:center; padding:50px; color:#ccc;">其他分頁功能維護中...</p>`;
+            view.innerHTML = `<p style="text-align:center; padding:50px; color:#ccc;">功能維護中...</p>`;
         }
     }
 
@@ -173,54 +155,53 @@
         const inner = document.getElementById('modalInner');
         inner.innerHTML = `
             <h3 style="margin:0">新增行程</h3>
-            <label>分類</label>
-            <select id="m_type"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>其他</option></select>
-            <label>名稱</label><input type="text" id="m_title">
+            <label>分類</label><select id="m_type"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>其他</option></select>
+            <label>名稱</label><input type="text" id="m_title" placeholder="景點或店名">
             <label>抵達時間</label><input type="time" id="m_time">
-            <label>營業時間 / 交通耗時(min)</label><input type="text" id="m_hours" placeholder="e.g. 09:00-17:00 或 20">
-            <label>門票 (景點適用)</label><input type="text" id="m_ticket">
+            <label>地址 (連動 Google Maps)</label><input type="text" id="m_addr" placeholder="請輸入地址或關鍵字">
+            <label>營業時間</label><input type="text" id="m_hours" placeholder="e.g. 09:00 - 18:00">
+            <label>門票費用</label><input type="text" id="m_ticket" placeholder="e.g. 1500 JPY">
             <label>特色 & 備註</label><textarea id="m_note" rows="3"></textarea>
-            <button class="save-btn" onclick="addTr()" style="background:var(--blue); color:white; border:none; padding:15px; border-radius:12px; width:100%; margin-top:20px; font-weight:700;">儲存行程</button>
+            <button class="save-btn" onclick="saveTr()">儲存行程</button>
             <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
         document.getElementById('modal').style.display = 'flex';
     }
 
     function openEdit(i) {
         editIdx = i;
-        const it = tripData[day][i];
+        const it = tripData[dayIdx][i];
         const inner = document.getElementById('modalInner');
         inner.innerHTML = `
             <h3>編輯行程</h3>
             <label>分類</label><select id="m_type"><option ${it.type==='景點'?'selected':''}>景點</option><option ${it.type==='住宿'?'selected':''}>住宿</option><option ${it.type==='美食'?'selected':''}>美食</option><option ${it.type==='購物'?'selected':''}>購物</option><option ${it.type==='其他'?'selected':''}>其他</option></select>
             <label>名稱</label><input type="text" id="m_title" value="${it.title}">
             <label>抵達時間</label><input type="time" id="m_time" value="${it.time}">
-            <label>營業時間 / 交通耗時(min)</label><input type="text" id="m_hours" value="${it.hours || ''}">
-            <label>門票</label><input type="text" id="m_ticket" value="${it.ticket || ''}">
+            <label>地址</label><input type="text" id="m_addr" value="${it.addr || ''}">
+            <label>營業時間</label><input type="text" id="m_hours" value="${it.hours || ''}">
+            <label>門票費用</label><input type="text" id="m_ticket" value="${it.ticket || ''}">
             <label>特色 & 備註</label><textarea id="m_note" rows="3">${it.note || ''}</textarea>
-            <button onclick="addTr()" style="background:var(--blue); color:white; border:none; padding:15px; border-radius:12px; width:100%; margin-top:20px; font-weight:700;">儲存變更</button>
+            <button class="save-btn" onclick="saveTr()">儲存變更</button>
             <button onclick="delTr()" style="background:#ff6b6b; color:white; border:none; padding:12px; border-radius:12px; width:100%; margin-top:10px;">刪除行程</button>
             <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
         document.getElementById('modal').style.display = 'flex';
     }
 
-    function addTr() {
+    function saveTr() {
         const data = { 
             type: document.getElementById('m_type').value, 
             title: document.getElementById('m_title').value || '未命名', 
             time: document.getElementById('m_time').value, 
+            addr: document.getElementById('m_addr').value,
             hours: document.getElementById('m_hours').value,
             ticket: document.getElementById('m_ticket').value,
-            note: document.getElementById('m_note').value,
-            mode: 'walk',
-            transTime: document.getElementById('m_hours').value || '15'
+            note: document.getElementById('m_note').value
         };
-        if(editIdx !== null) tripData[day][editIdx] = data;
-        else tripData[day].push(data);
+        if(editIdx !== null) tripData[dayIdx][editIdx] = data;
+        else tripData[dayIdx].push(data);
         save(); render(); closeModal();
     }
 
-    function delTr() { if(confirm('確定刪除這個行程嗎？')) { tripData[day].splice(editIdx, 1); save(); render(); closeModal(); } }
-    function setMode(i, m) { tripData[day][i].mode = m; save(); render(); }
+    function delTr() { if(confirm('確定刪除？')) { tripData[dayIdx].splice(editIdx, 1); save(); render(); closeModal(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     render();
