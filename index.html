@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Carlos生日摘星星</title>
+    <title>Carlos Bday Trip</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,30 +21,29 @@
         .date-btn.active { background: var(--blue); color: white; }
 
         .container { padding: 15px; }
-        .card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: grab; }
+        .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
         
-        /* 垃圾桶圖示修正 */
-        .del-btn { position: absolute; right: 15px; top: 15px; background: none; border: none; cursor: pointer; color: #ccc; transition: color 0.2s; }
-        .del-btn:active { color: #ff6b6b; }
+        /* 記帳專用樣式 */
+        .day-sum-card { background: var(--blue); color: white; padding: 12px 18px; border-radius: 15px; margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .wallet-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
+        .pay-method { font-size: 0.7rem; color: var(--blue); border: 1px solid var(--blue); padding: 1px 6px; border-radius: 4px; margin-right: 5px; }
+        .twd-amt { font-size: 0.75rem; color: #999; display: block; text-align: right; }
 
-        .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 10px; border-radius: 12px; }
-        .time-label { font-size: 0.85rem; color: var(--blue); font-weight: 700; margin-top: 10px; display: block; }
-        .addr-link { font-size: 0.8rem; color: #888; margin-top: 5px; display: block; text-decoration: underline; }
-
-        /* 浮動新增按鈕修正 */
-        .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; cursor: pointer; }
+        .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; }
         .fab svg { width: 30px; height: 30px; stroke: white; stroke-width: 3; stroke-linecap: round; }
 
-        /* Modal */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
         .field-lbl { font-size: 0.8rem; color: #888; margin: 12px 0 4px 4px; display: block; }
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 5px; border: 1px solid #eee; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #fcfcfc; }
         .save-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; font-size: 1rem; }
+        .cancel-btn { width: 100%; border: none; background: none; color: #aaa; margin-top: 15px; padding: 10px; font-size: 0.9rem; }
 
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
         .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
         .nav-tab.active { color: var(--blue); font-weight: bold; }
+        
+        .del-btn-mini { border:none; background:none; color:#ddd; margin-left:10px; }
     </style>
 </head>
 <body>
@@ -56,7 +55,7 @@
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
 
-<button class="fab" onclick="openModal()">
+<button class="fab" id="fabBtn" onclick="openModal()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
 </button>
 
@@ -75,19 +74,32 @@
     const store = (key, val) => val ? localStorage.setItem(key, JSON.stringify(val)) : JSON.parse(localStorage.getItem(key));
     
     let tripData = store('c_trip') || Array(8).fill().map(()=>[]);
-    let wallData = store('c_wall') || Array(8).fill().map(()=>[]);
+    let wallData = store('c_wall_global') || []; // 改為全域清單
     let todoData = store('c_todo') || [];
+    let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
-    const save = () => { store('c_trip', tripData); store('c_wall', wallData); store('c_todo', todoData); };
+    const save = () => { 
+        store('c_trip', tripData); 
+        store('c_wall_global', wallData); 
+        store('c_todo', todoData); 
+        localStorage.setItem('c_rate', exchangeRate);
+    };
 
     function goTab(t) { tab = t; render(); }
 
     function render() {
         const view = document.getElementById('mainView');
         const slider = document.getElementById('dateSlider');
-        slider.innerHTML = '';
-        for(let i=0; i<8; i++) {
-            slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">12/${24+i} D${i+1}</button>`;
+        const fab = document.getElementById('fabBtn');
+        
+        slider.style.display = (tab === 'trip') ? 'flex' : 'none';
+        fab.style.display = (tab === 'todo' || tab === 'trip' || tab === 'wallet') ? 'flex' : 'none';
+
+        if(tab === 'trip') {
+            slider.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">12/${24+i} D${i+1}</button>`;
+            }
         }
 
         document.querySelectorAll('.nav-tab').forEach((n,i)=>n.classList.toggle('active', ['trip','todo','wallet'].indexOf(tab)===i));
@@ -97,25 +109,25 @@
             h = `<div id="drag-list">`;
             tripData[day].forEach((it, i) => {
                 h += `
-                <div class="card" data-id="${i}">
-                    <button class="del-btn" onclick="delIt(${i})">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </button>
+                <div class="card">
+                    <button style="position:absolute;right:15px;top:15px;border:none;background:none;color:#ddd;" onclick="delIt(${i})">✕</button>
                     <span class="type-tag">${it.type}</span>
                     <span class="time-label">🕒 ${it.time || '未定時'}</span>
                     <div style="font-weight:700; font-size:1.1rem; margin-top:5px;">${it.title}</div>
-                    ${it.addr ? `<div class="addr-link" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
+                    ${it.addr ? `<div style="font-size:0.8rem;color:#888;text-decoration:underline;margin-top:5px;" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
                     ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:10px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">${it.note}</div>` : ''}
                 </div>`;
             });
             h += `</div>`;
             view.innerHTML = h;
-            new Sortable(document.getElementById('drag-list'), { animation: 150, onEnd: (e) => {
-                let items = tripData[day];
-                let [moved] = items.splice(e.oldIndex, 1);
-                items.splice(e.newIndex, 0, moved);
-                save();
-            }});
+            if(document.getElementById('drag-list')) {
+                new Sortable(document.getElementById('drag-list'), { animation: 150, onEnd: (e) => {
+                    let items = tripData[day];
+                    let [moved] = items.splice(e.oldIndex, 1);
+                    items.splice(e.newIndex, 0, moved);
+                    save();
+                }});
+            }
         } else if(tab === 'todo') {
             h = `<div class="card"><h3>待辦事項</h3>`;
             todoData.forEach((t, i) => {
@@ -128,19 +140,44 @@
             h += `</div>`;
             view.innerHTML = h;
         } else if(tab === 'wallet') {
-            let total = wallData[day].reduce((a,b)=>a+Number(b.amt),0);
-            h = `<div class="card" style="background:var(--blue); color:white; text-align:center;">
-                <div style="font-size:0.8rem;">Day ${day+1} 支出總計</div>
-                <div style="font-size:1.5rem; font-weight:700;">¥${total} / NT$${(total*0.215).toFixed(0)}</div>
+            h = `<div class="card" style="margin-bottom:20px;">
+                <span class="field-lbl">兌換匯率 (JPY 1 = TWD)</span>
+                <input type="number" step="0.001" id="rateInput" value="${exchangeRate}" onchange="exchangeRate=this.value;save();render()">
             </div>`;
-            wallData[day].forEach((w, i) => {
-                h += `<div class="card">
-                    <div style="display:flex; justify-content:space-between">
-                        <span><b style="color:var(--blue)">${w.who}</b> ${w.name}</span>
-                        <span><b>¥${w.amt}</b> <button onclick="wallData[${day}].splice(${i},1);save();render()" style="border:none; background:none; color:#ddd; margin-left:5px;">✕</button></span>
-                    </div>
+            
+            // 按日期分組
+            const groups = wallData.reduce((acc, curr) => {
+                acc[curr.date] = acc[curr.date] || [];
+                acc[curr.date].push(curr);
+                return acc;
+            }, {});
+
+            let grandTotalJPY = 0;
+            Object.keys(groups).sort().forEach(d => {
+                let dayTotal = groups[d].reduce((a,b)=>a+Number(b.amt),0);
+                grandTotalJPY += dayTotal;
+                h += `<div class="day-sum-card">
+                    <span>${d} 小計</span>
+                    <span>¥${dayTotal} / NT$${(dayTotal*exchangeRate).toFixed(0)}</span>
                 </div>`;
+                groups[d].forEach((w, idx) => {
+                    h += `<div class="card" style="margin-bottom:8px; padding:12px 18px;">
+                        <div class="wallet-item">
+                            <span><span class="pay-method">${w.pay}</span><b style="color:var(--blue)">${w.who}</b> ${w.name}</span>
+                            <span style="text-align:right">
+                                <b>¥${w.amt}</b>
+                                <span class="twd-amt">≈ NT$${(w.amt*exchangeRate).toFixed(0)}</span>
+                            </span>
+                            <button class="del-btn-mini" onclick="deleteExpense('${w.id}')">✕</button>
+                        </div>
+                    </div>`;
+                });
             });
+
+            h += `<div class="card" style="background:#4a4a4a; color:white; margin-top:30px; text-align:center;">
+                <div style="font-size:0.8rem;">本次旅行總支出統計</div>
+                <div style="font-size:1.6rem; font-weight:700; margin-top:5px;">¥${grandTotalJPY} / NT$${(grandTotalJPY*exchangeRate).toFixed(0)}</div>
+            </div>`;
             view.innerHTML = h;
         }
     }
@@ -149,41 +186,65 @@
         const inner = document.getElementById('modalInner');
         if(tab === 'trip') {
             inner.innerHTML = `
-                <h3 style="margin:0 0 15px">新增行程</h3>
+                <h3>新增行程</h3>
                 <span class="field-lbl">分類</span>
                 <select id="m_type"><option>景點</option><option>美食</option><option>交通</option><option>航班</option><option>購物</option></select>
-                <span class="field-lbl">地點名稱</span>
-                <input type="text" id="m_title">
-                <span class="field-lbl">時間設定</span>
-                <input type="time" id="m_time">
-                <span class="field-lbl">地址 (點擊卡片連動地圖)</span>
-                <input type="text" id="m_addr">
-                <span class="field-lbl">備註</span>
-                <textarea id="m_note" rows="3"></textarea>
+                <span class="field-lbl">地點名稱</span><input type="text" id="m_title">
+                <span class="field-lbl">時間設定</span><input type="time" id="m_time">
+                <span class="field-lbl">地址</span><input type="text" id="m_addr">
+                <span class="field-lbl">備註</span><textarea id="m_note" rows="3"></textarea>
                 <button class="save-btn" onclick="addTr()">儲存行程</button>
-                <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
+                <button class="cancel-btn" onclick="closeModal()">取消</button>`;
         } else if(tab === 'todo') {
-            inner.innerHTML = `<h3>新增 TODO</h3><input type="text" id="m_t"><button class="save-btn" onclick="addTd()">新增</button>`;
+            inner.innerHTML = `<h3>新增 TODO</h3><input type="text" id="m_t"><button class="save-btn" onclick="addTd()">新增</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
         } else {
-            inner.innerHTML = `<h3>紀錄支出</h3>
-                <select id="m_w_who"><option>Carlos</option><option>Ivy</option></select>
-                <input type="text" id="m_w_n" placeholder="品項">
-                <input type="number" id="m_w_a" placeholder="日幣金額">
-                <button class="save-btn" onclick="addWa()">儲存</button>`;
+            inner.innerHTML = `<h3>新增開支</h3>
+                <span class="field-lbl">日期</span>
+                <select id="m_w_d">
+                    <option value="2025-12-24">12/24 Day 1</option><option value="2025-12-25">12/25 Day 2</option>
+                    <option value="2025-12-26">12/26 Day 3</option><option value="2025-12-27">12/27 Day 4</option>
+                    <option value="2025-12-28">12/28 Day 5</option><option value="2025-12-29">12/29 Day 6</option>
+                    <option value="2025-12-30">12/30 Day 7</option><option value="2025-12-31">12/31 Day 8</option>
+                </select>
+                <span class="field-lbl">支付人</span><select id="m_w_who"><option>Carlos</option><option>Ivy</option></select>
+                <span class="field-lbl">付款方式</span><select id="m_w_p"><option>現金</option><option>信用卡</option><option>交通卡</option></select>
+                <span class="field-lbl">品項名稱</span><input type="text" id="m_w_n">
+                <span class="field-lbl">日幣金額 (JPY)</span><input type="number" id="m_w_a">
+                <button class="save-btn" onclick="addWa()">儲存紀錄</button>
+                <button class="cancel-btn" onclick="closeModal()">取消</button>`;
         }
         document.getElementById('modal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    
     function addTr() {
         tripData[day].push({ type: document.getElementById('m_type').value, title: document.getElementById('m_title').value || '未命名', time: document.getElementById('m_time').value, addr: document.getElementById('m_addr').value, note: document.getElementById('m_note').value });
         save(); render(); closeModal();
     }
+    
     function addTd() { todoData.push(document.getElementById('m_t').value); save(); render(); closeModal(); }
+    
     function addWa() {
-        wallData[day].push({ who: document.getElementById('m_w_who').value, name: document.getElementById('m_w_n').value, amt: document.getElementById('m_w_a').value });
+        const item = {
+            id: Date.now().toString(),
+            date: document.getElementById('m_w_d').value,
+            who: document.getElementById('m_w_who').value,
+            pay: document.getElementById('m_w_p').value,
+            name: document.getElementById('m_w_n').value || '未命名開支',
+            amt: document.getElementById('m_w_a').value || 0
+        };
+        wallData.push(item);
         save(); render(); closeModal();
     }
+
+    function deleteExpense(id) {
+        if(confirm('確定刪除此筆紀錄？')) {
+            wallData = wallData.filter(item => item.id !== id);
+            save(); render();
+        }
+    }
+
     function delIt(i) { if(confirm('確定刪除？')) { tripData[day].splice(i,1); save(); render(); } }
 
     render();
