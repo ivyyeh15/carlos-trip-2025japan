@@ -14,13 +14,33 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        .banner { width: 100%; height: 180px; background-color: #d1d9db; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 2px solid var(--blue); }
-        .illustration { font-size: 80px; line-height: 1; }
-        .banner-text { position: absolute; bottom: 10px; color: white; font-weight: 700; text-shadow: 1px 1px 4px rgba(0,0,0,0.2); }
+        /* Banner & Header 整合 */
+        .main-header { 
+            background: url('banner.png') no-repeat center center; 
+            background-size: cover; 
+            height: 180px; 
+            position: relative; 
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .header-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4); /* 增加半透明遮罩讓文字更清楚 */
+        }
+        .header-title { 
+            position: relative; 
+            color: white; 
+            font-size: 1.2rem; 
+            letter-spacing: 2px; 
+            padding-bottom: 20px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            font-weight: 700;
+        }
         
-        header { background: var(--blue); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        
-        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 50px; z-index: 90; }
+        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 0; z-index: 90; }
         .date-slider::-webkit-scrollbar { display: none; }
         .date-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 60px; height: 70px; border-radius: 15px; background: #f2f2f2; border: none; flex-shrink: 0; }
         .date-btn .wk { font-size: 1rem; font-weight: 700; color: #888; }
@@ -30,19 +50,11 @@
         .container { padding: 15px; }
         .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
         
-        /* 天氣區域 */
         .weather-info { background: white; border-radius: 18px; padding: 15px; margin-bottom: 18px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; cursor: pointer; }
         .weather-icon { font-size: 2.2rem; }
         .city-tag { font-size: 0.7rem; background: var(--blue); color: white; padding: 2px 6px; border-radius: 5px; margin-bottom: 3px; display: inline-block; }
 
-        /* 航班卡片 */
         .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 20px; padding: 22px; margin-bottom: 15px; }
-
-        /* 記帳專用樣式 */
-        .day-sum-card { background: var(--blue); color: white; padding: 12px 18px; border-radius: 15px; margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
-        .pay-method { font-size: 0.7rem; color: var(--blue); border: 1px solid var(--blue); padding: 1px 6px; border-radius: 4px; margin-right: 5px; }
-        .twd-amt { font-size: 0.75rem; color: #999; display: block; text-align: right; }
-
 
         .fab { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; }
         .fab svg { width: 28px; height: 28px; stroke: white; stroke-width: 3; }
@@ -59,18 +71,20 @@
 
         .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 8px; border-radius: 10px; }
         .addr-link { color: var(--blue); font-size: 0.85rem; text-decoration: underline; margin-top: 8px; display: inline-block; cursor: pointer; }
+        
+        /* 記帳專用樣式 */
+        .day-sum-card { background: var(--blue); color: white; padding: 12px 18px; border-radius: 15px; margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+        .pay-method { font-size: 0.7rem; color: var(--blue); border: 1px solid var(--blue); padding: 1px 6px; border-radius: 4px; margin-right: 5px; }
+        .twd-amt { font-size: 0.75rem; color: #999; display: block; text-align: right; }
+
     </style>
 </head>
 <body>
 
-<div class="banner">
-    <!-- Carlos (Red Hoodie, beard) & Ivy (Green sweater, sunglasses) -->
-    <div class="illustration">🎄👩🏻‍🎨🧑🏻‍🎨</div>
-    <div style="font-size: 12px; color: #666;">Merry Christmas & Happy Birthday</div>
-    <div class="banner-text">Carlos & Ivy</div>
+<div class="main-header">
+    <div class="header-overlay"></div>
+    <div class="header-title" id="tabTitle">Carlos 生日摘星星</div>
 </div>
-
-<header id="tabTitle">Carlos 生日摘星星</header>
 
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
@@ -93,7 +107,7 @@
     const store = (k, v) => v ? localStorage.setItem(k, JSON.stringify(v)) : JSON.parse(localStorage.getItem(k));
     const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     
-    let tripData = store('c_trip_final_v3') || Array(8).fill().map(()=>[]);
+    let tripData = store('c_trip_final') || Array(8).fill().map(()=>[]);
     let backData = store('c_back') || [];
     let todoData = store('c_todo') || [];
     let wallData = store('c_wall_all') || [];
@@ -111,15 +125,14 @@
         
         let h = '';
         if(tab === 'trip') {
-            title.innerText = "Carlos 生日摘星星";
+            title.innerText = "行程規劃";
             slider.innerHTML = '';
             for(let i=0; i<8; i++){
                 let d = new Date(2025, 11, 24+i);
                 slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()"><span class="wk">${weekdays[d.getDay()]}</span><span>${d.getDate()}</span></button>`;
             }
 
-            // 天氣與地區連動
-            let isTokyo = day >= 4; // 12/28 是索引 4
+            let isTokyo = day >= 4;
             let city = isTokyo ? '東京 Tokyo' : '名古屋 Nagoya';
             let weatherUrl = isTokyo ? 'weather.yahoo.co.jp' : 'weather.yahoo.co.jp';
             h += `<div class="weather-info" onclick="window.open('${weatherUrl}')">
@@ -127,11 +140,10 @@
                     <div>
                         <span class="city-tag">${city}</span>
                         <div style="font-weight:700">預估 3°C ~ 10°C</div>
-                        <div style="font-size:0.8rem;color:#888;">點擊查看 Yahoo 日本氣象詳細預報</div>
+                        <div style="font-size:0.8rem;color:#888;">點擊查看 Yahoo 日本氣象</div>
                     </div>
                   </div>`;
             
-            // 12/24 航班資訊
             if(day === 0) {
                 h += `<div class="flight-card" onclick="goMap('桃園國際機場')">
                     <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">華航 CI154 | 12/24 DEPARTURE</div>
@@ -153,11 +165,6 @@
             });
             h += `</div>`;
             view.innerHTML = h;
-            if(document.getElementById('drag-list')) {
-                new Sortable(document.getElementById('drag-list'), { animation: 150, onEnd: (e) => {
-                    let items = tripData[day]; let [moved] = items.splice(e.oldIndex, 1); items.splice(e.newIndex, 0, moved); save();
-                }});
-            }
         } else if (tab === 'todo') {
             title.innerText = "待辦事項";
             h = todoData.map((t,i)=> `<div class="card" style="display:flex;align-items:center;"><input type="checkbox" style="width:20px;height:20px;margin-right:10px;"> <span style="flex:1">${t}</span><button onclick="todoData.splice(${i},1);save();render()" style="border:none;background:none;color:#ccc;">✕</button></div>`).join('');
@@ -211,7 +218,7 @@
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    function save() { store('c_trip_final_v3', tripData); store('c_back', backData); store('c_todo', todoData); store('c_wall_all', wallData); localStorage.setItem('c_rate', exchangeRate); }
+    function save() { store('c_trip_final', tripData); store('c_back', backData); store('c_todo', todoData); store('c_wall_all', wallData); localStorage.setItem('c_rate', exchangeRate); }
     
     function addTr() { tripData[day].push({type:document.getElementById('m_type').value, title:document.getElementById('m_title').value, time:document.getElementById('m_time').value, addr:document.getElementById('m_addr').value, note:document.getElementById('m_note').value}); save(); render(); closeModal(); }
     function delTr(i) { if(confirm('刪除？')) { tripData[day].splice(i,1); save(); render(); } }
@@ -226,9 +233,7 @@
 
     function goMap(addr) {
         if(confirm('要開啟 Google Maps 導航嗎？')) {
-            // 嘗試喚起 App
             window.location.href = `comgooglemaps://?q=${encodeURIComponent(addr)}`;
-            // 1秒後如果 App 未開啟，則跳轉至網頁版
             setTimeout(() => { window.open(`www.google.com{encodeURIComponent(addr)}`); }, 1000);
         }
     }
