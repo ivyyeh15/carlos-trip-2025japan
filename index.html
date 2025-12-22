@@ -9,46 +9,40 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="fonts.googleapis.com" rel="stylesheet">
     <script src="unpkg.com"></script>
+    <script src="cdn.jsdelivr.net"></script>
     <style>
-        :root { --blue: #94a7ae; --gray: #e2e2e2; --bg: #f8f9fa; --text: #4a4a4a; }
+        :root { --blue: #94a7ae; --gray: #e2e2e2; --bg: #f8f9fa; --text: #4a4a4a; --accent: #c5a48e; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* Header & Date Slider */
         header { background: var(--blue); color: white; padding: 45px 20px 10px; text-align: center; position: sticky; top: 0; z-index: 100; }
-        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 10px; border-bottom: 1px solid var(--gray); scrollbar-width: none; }
+        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 10px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
         .date-slider::-webkit-scrollbar { display: none; }
         .date-btn { padding: 8px 18px; border-radius: 20px; background: #eee; font-size: 0.8rem; flex-shrink: 0; cursor: pointer; border:none; color: #777; }
         .date-btn.active { background: var(--blue); color: white; }
 
-        /* Container */
         .container { padding: 15px; }
-        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
-        .type-tag { font-size: 0.7rem; color: white; background: #c5a48e; padding: 2px 8px; border-radius: 10px; }
-        .time-label { font-size: 0.8rem; color: #999; margin: 5px 0; }
-        .del-btn { position: absolute; right: 15px; top: 15px; color: #ccc; border:none; background:none; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: grab; }
+        .card:active { cursor: grabbing; border: 1px solid var(--blue); }
+        .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 2px 8px; border-radius: 10px; }
+        .time-label { font-size: 0.85rem; color: var(--blue); font-weight: 700; margin: 5px 0; }
+        
+        .card-controls { position: absolute; right: 10px; top: 10px; display: flex; gap: 10px; }
+        .icon-btn { color: #ccc; border:none; background:none; padding: 5px; cursor: pointer; }
+        .icon-btn:hover { color: var(--blue); }
 
-        /* 文青 TODO */
-        .todo-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .todo-item input[type="checkbox"] { appearance: none; width: 18px; height: 18px; border: 1px solid #333; border-radius: 3px; margin-right: 12px; cursor: pointer; position: relative; }
-        .todo-item input[type="checkbox"]:checked { background: #333; }
-        .todo-item input[type="checkbox"]:checked::after { content: '✓'; color: white; position: absolute; font-size: 12px; left: 2px; top: -2px; }
-        .todo-text { flex: 1; font-size: 0.95rem; }
+        .note-box { font-size: 0.8rem; color: #666; border-top: 1px dashed #eee; margin-top: 8px; padding-top: 8px; white-space: pre-line; }
 
-        /* 記帳 */
-        .wallet-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.9rem; }
-        .payer-tag { font-size: 0.7rem; padding: 1px 5px; border: 1px solid #94a7ae; color: #94a7ae; border-radius: 4px; margin-right: 5px; }
-
-        /* Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; display: flex; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
         .nav-item { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
         .nav-item.active { color: var(--blue); }
 
-        /* Form */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-body { background: white; width: 85%; border-radius: 20px; padding: 20px; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-        .primary-btn { background: var(--blue); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; margin-top: 10px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-body { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 1rem; }
+        .primary-btn { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; margin-top: 15px; font-weight: 700; }
+        
+        .drag-handle { display: inline-block; margin-right: 5px; color: #ddd; }
     </style>
 </head>
 <body>
@@ -56,8 +50,8 @@
 <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <i data-lucide="info" size="20"></i>
-        <h1 style="font-size:1.1rem; letter-spacing:1px;">Carlos Bday Trip</h1>
-        <i data-lucide="shopping-bag" size="20" onclick="alert('購物清單開發中')"></i>
+        <h1 style="font-size:1.1rem;">Carlos Bday Trip</h1>
+        <i data-lucide="shopping-bag" size="20"></i>
     </div>
 </header>
 
@@ -69,120 +63,143 @@
     <button class="nav-item active" onclick="tab('trip')"><i data-lucide="map"></i>行程</button>
     <button class="nav-item" onclick="tab('todo')"><i data-lucide="check-square"></i>TODO</button>
     <button class="nav-item" onclick="tab('wallet')"><i data-lucide="wallet"></i>記帳</button>
-    <button class="nav-item" onclick="openModal()"><i data-lucide="plus-circle"></i>新增</button>
+    <button class="nav-item" onclick="openAddModal()"><i data-lucide="plus-circle"></i>新增項目</button>
 </nav>
 
-<!-- Modal -->
+<!-- 行程編輯/新增 Modal -->
 <div id="modal" class="modal">
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-body">
+        <h3 id="modalTitle">編輯行程</h3>
+        <label style="font-size:0.8rem;">日期</label>
+        <select id="f_day">
+            <option value="0">12/24 Day 1</option><option value="1">12/25 Day 2</option>
+            <option value="2">12/26 Day 3</option><option value="3">12/27 Day 4</option>
+            <option value="4">12/28 Day 5</option><option value="5">12/29 Day 6</option>
+            <option value="6">12/30 Day 7</option><option value="7">12/31 Day 8</option>
+        </select>
+        <label style="font-size:0.8rem;">分類</label>
+        <select id="f_type">
+            <option>景點</option><option>美食</option><option>交通</option>
+            <option>航班</option><option>購物</option><option>其他</option>
+        </select>
+        <input type="text" id="f_title" placeholder="地點/名稱">
+        <input type="time" id="f_time">
+        <textarea id="f_note" rows="3" placeholder="備註內容..."></textarea>
+        <button class="primary-btn" onclick="saveData()">儲存變更</button>
+        <button onclick="closeModal()" style="width:100%;border:none;background:none;margin-top:15px;color:#999;">取消</button>
+    </div>
 </div>
 
 <script>
-    let day = 0, currTab = 'trip';
-    const trip = JSON.parse(localStorage.getItem('c_trip')) || Array(8).fill().map(()=>[]);
-    const wallet = JSON.parse(localStorage.getItem('c_wall')) || Array(8).fill().map(()=>[]);
-    const todo = JSON.parse(localStorage.getItem('c_todo')) || [];
+    let currentDay = 0, currentTab = 'trip', editingIdx = null;
+    let trip = JSON.parse(localStorage.getItem('c_trip')) || Array(8).fill().map(()=>[]);
+    let wallet = JSON.parse(localStorage.getItem('c_wall')) || Array(8).fill().map(()=>[]);
+    let todo = JSON.parse(localStorage.getItem('c_todo')) || [];
 
-    function save() {
+    function saveToLocal() {
         localStorage.setItem('c_trip', JSON.stringify(trip));
         localStorage.setItem('c_wall', JSON.stringify(wallet));
         localStorage.setItem('c_todo', JSON.stringify(todo));
     }
 
-    function tab(t) { currTab = t; render(); }
-    
+    function tab(t) { currentTab = t; render(); }
+
     function render() {
-        const c = document.getElementById('content');
-        const s = document.getElementById('slider');
-        s.innerHTML = '';
+        const content = document.getElementById('content');
+        const slider = document.getElementById('slider');
+        slider.innerHTML = '';
         for(let i=0; i<8; i++) {
-            s.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">12/${24+i} D${i+1}</button>`;
+            slider.innerHTML += `<button class="date-btn ${i===currentDay?'active':''}" onclick="currentDay=${i};render()">${12/24+i===0.5?'12/24':'12/'+(24+i)} D${i+1}</button>`;
         }
-        
-        document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', ['trip','todo','wallet'].indexOf(currTab)===i));
-        
-        let html = '';
-        if(currTab === 'trip') {
-            trip[day].forEach((item, i) => {
-                html += `<div class="card">
-                    <button class="del-btn" onclick="delTrip(${i})"><i data-lucide="x" size="16"></i></button>
-                    <span class="type-tag">${item.type}</span>
-                    <div class="time-label">${item.time}</div>
-                    <div style="font-weight:700;margin-bottom:8px;">${item.title}</div>
-                    ${item.note?`<div style="font-size:0.8rem;color:#666;border-top:1px dashed #eee;padding-top:8px;">${item.note}</div>`:''}
-                    <div onclick="go('${item.title}')" style="color:var(--blue);font-size:0.75rem;margin-top:8px;"><i data-lucide="navigation" size="12"></i> Google Maps</div>
-                </div>`;
-            });
-        } else if(currTab === 'todo') {
-            html = `<div class="card"><h3>TODO</h3>`;
-            todo.forEach((t, i) => {
-                html += `<div class="todo-item">
-                    <input type="checkbox">
-                    <span class="todo-text">${t}</span>
-                    <i data-lucide="trash-2" size="16" style="color:#ccc" onclick="delTodo(${i})"></i>
-                </div>`;
-            });
-            html += `<input type="text" id="newTodo" placeholder="輸入待辦事項並按確認" style="margin-top:15px;">
-                     <button class="primary-btn" onclick="addTodo()">新增 TODO</button></div>`;
-        } else if(currTab === 'wallet') {
-            let total = wallet[day].reduce((a,b)=>a+Number(b.amt),0);
-            html = `<div class="card" style="background:var(--blue);color:white;">
-                <div style="font-size:0.8rem;">Day ${day+1} 總支出</div>
-                <div style="font-size:1.4rem;font-weight:700;">¥${total} / NT$${(total*0.215).toFixed(0)}</div>
-            </div>`;
-            wallet[day].forEach((w, i) => {
-                html += `<div class="card">
-                    <div class="wallet-row">
-                        <span><span class="payer-tag">${w.who}</span>${w.name}</span>
-                        <span style="font-weight:700;">¥${w.amt} <i data-lucide="trash-2" size="14" onclick="delWall(${i})" style="margin-left:8px;color:#ccc"></i></span>
+
+        document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', ['trip','todo','wallet'].indexOf(currentTab)===i));
+
+        if(currentTab === 'trip') {
+            content.innerHTML = `<div id="drag-list"></div>`;
+            const list = document.getElementById('drag-list');
+            trip[currentDay].forEach((item, i) => {
+                list.innerHTML += `
+                    <div class="card" data-id="${i}">
+                        <div class="card-controls">
+                            <button class="icon-btn" onclick="openEditModal(${i})"><i data-lucide="edit-3" size="16"></i></button>
+                            <button class="icon-btn" onclick="deleteTrip(${i})"><i data-lucide="trash-2" size="16"></i></button>
+                        </div>
+                        <span class="type-tag">${item.type}</span>
+                        <div class="time-label"><i data-lucide="clock" size="12" style="vertical-align:middle"></i> ${item.time || '--:--'}</div>
+                        <div style="font-weight:700; font-size:1.1rem;">${item.title}</div>
+                        ${item.note ? `<div class="note-box">${item.note}</div>` : ''}
+                        <div onclick="goMap('${item.title}')" style="color:var(--blue); font-size:0.75rem; margin-top:10px; display:inline-block;">
+                            <i data-lucide="navigation" size="12"></i> Google Maps 導航
+                        </div>
                     </div>
-                </div>`;
+                `;
             });
+            new Sortable(list, {
+                animation: 150,
+                onEnd: (evt) => {
+                    const items = trip[currentDay];
+                    const moved = items.splice(evt.oldIndex, 1)[0];
+                    items.splice(evt.newIndex, 0, moved);
+                    saveToLocal();
+                }
+            });
+        } else {
+            content.innerHTML = `<p style="text-align:center; color:#999; margin-top:50px;">功能載入中...</p>`;
         }
-        c.innerHTML = html;
         lucide.createIcons();
     }
 
-    function openModal() {
-        const m = document.getElementById('modal');
-        const b = document.getElementById('modalBody');
-        m.style.display = 'flex';
-        if(currTab === 'trip') {
-            b.innerHTML = `<h3>新增行程</h3>
-                <select id="t_type"><option>景點</option><option>美食</option><option>交通</option><option>購物</option></select>
-                <input type="text" id="t_title" placeholder="名稱">
-                <input type="time" id="t_time">
-                <textarea id="t_note" placeholder="備註 (景點必填)"></textarea>
-                <button class="primary-btn" onclick="addTrip()">儲存</button>
-                <button onclick="closeModal()" style="width:100%;border:none;background:none;margin-top:10px;color:#888;">取消</button>`;
-        } else if(currTab === 'wallet') {
-            b.innerHTML = `<h3>新增消費</h3>
-                <select id="w_who"><option>Carlos</option><option>Ivy</option></select>
-                <input type="text" id="w_name" placeholder="品項">
-                <input type="number" id="w_amt" placeholder="日幣金額">
-                <button class="primary-btn" onclick="addWall()">紀錄</button>
-                <button onclick="closeModal()" style="width:100%;border:none;background:none;margin-top:10px;color:#888;">取消</button>`;
+    function openAddModal() {
+        editingIdx = null;
+        document.getElementById('modalTitle').innerText = "新增行程項目";
+        document.getElementById('f_day').value = currentDay;
+        document.getElementById('f_title').value = '';
+        document.getElementById('f_time').value = '';
+        document.getElementById('f_note').value = '';
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function openEditModal(i) {
+        editingIdx = i;
+        const item = trip[currentDay][i];
+        document.getElementById('modalTitle').innerText = "編輯行程項目";
+        document.getElementById('f_day').value = currentDay;
+        document.getElementById('f_type').value = item.type;
+        document.getElementById('f_title').value = item.title;
+        document.getElementById('f_time').value = item.time;
+        document.getElementById('f_note').value = item.note;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function saveData() {
+        const newDay = parseInt(document.getElementById('f_day').value);
+        const data = {
+            type: document.getElementById('f_type').value,
+            title: document.getElementById('f_title').value || '未命名地點',
+            time: document.getElementById('f_time').value,
+            note: document.getElementById('f_note').value
+        };
+
+        if(editingIdx !== null) {
+            // 如果日期變了，要移動陣列
+            if(newDay !== currentDay) {
+                trip[currentDay].splice(editingIdx, 1);
+                trip[newDay].push(data);
+            } else {
+                trip[currentDay][editingIdx] = data;
+            }
         } else {
-            alert('請在行程或記帳分頁新增'); closeModal();
+            trip[newDay].push(data);
         }
+        currentDay = newDay;
+        saveToLocal(); render(); closeModal();
     }
 
+    function deleteTrip(i) { if(confirm('確定刪除此行程？')) { trip[currentDay].splice(i,1); saveToLocal(); render(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    function addTrip() {
-        trip[day].push({type:document.getElementById('t_type').value, title:document.getElementById('t_title').value, time:document.getElementById('t_time').value, note:document.getElementById('t_note').value});
-        save(); render(); closeModal();
-    }
-    function delTrip(i) { trip[day].splice(i,1); save(); render(); }
-    function addWall() {
-        wallet[day].push({who:document.getElementById('w_who').value, name:document.getElementById('w_name').value, amt:document.getElementById('w_amt').value});
-        save(); render(); closeModal();
-    }
-    function delWall(i) { wallet[day].splice(i,1); save(); render(); }
-    function addTodo() { todo.push(document.getElementById('newTodo').value); save(); render(); }
-    function delTodo(i) { todo.splice(i,1); save(); render(); }
-    function go(t) { window.open(`www.google.com{encodeURIComponent(t)}&travelmode=transit`); }
+    function goMap(t) { window.open(`www.google.com{encodeURIComponent(t)}&travelmode=transit`); }
 
-    tab('trip');
+    render();
     lucide.createIcons();
 </script>
 </body>
