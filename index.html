@@ -3,222 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Carlos Bday Trip</title>
+    <title>Carlos生日摘星星</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="fonts.googleapis.com" rel="stylesheet">
-    <script src="unpkg.com"></script>
     <script src="cdn.jsdelivr.net"></script>
     <style>
         :root { --blue: #94a7ae; --gray: #e2e2e2; --bg: #f8f9fa; --text: #4a4a4a; --accent: #c5a48e; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        /* Header */
-        header { background: var(--blue); color: white; padding: 45px 20px 10px; text-align: center; position: sticky; top: 0; z-index: 100; }
+        header { background: var(--blue); color: white; padding: 50px 20px 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
         .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 10px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
         .date-slider::-webkit-scrollbar { display: none; }
         .date-btn { padding: 8px 18px; border-radius: 20px; background: #eee; font-size: 0.8rem; flex-shrink: 0; cursor: pointer; border:none; color: #777; }
         .date-btn.active { background: var(--blue); color: white; }
 
-        /* Container & Cards */
         .container { padding: 15px; }
         .card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: grab; }
-        .card:active { cursor: grabbing; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        
+        /* 垃圾桶圖示修正 */
+        .del-btn { position: absolute; right: 15px; top: 15px; background: none; border: none; cursor: pointer; color: #ccc; transition: color 0.2s; }
+        .del-btn:active { color: #ff6b6b; }
+
         .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 10px; border-radius: 12px; }
         .time-label { font-size: 0.85rem; color: var(--blue); font-weight: 700; margin-top: 10px; display: block; }
-        .addr-text { font-size: 0.8rem; color: #888; margin-top: 5px; display: flex; align-items: center; gap: 4px; text-decoration: underline; }
-        
-        /* 垃圾桶按鈕 */
-        .del-icon { position: absolute; right: 15px; top: 15px; color: #ddd; border: none; background: none; padding: 5px; }
-        .del-icon:hover { color: #ff6b6b; }
+        .addr-link { font-size: 0.8rem; color: #888; margin-top: 5px; display: block; text-decoration: underline; }
 
-        /* 浮動新增按鈕 (各頁面獨立) */
-        .add-fab { position: fixed; bottom: 90px; right: 20px; width: 56px; height: 56px; background: var(--blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; z-index: 500; }
+        /* 浮動新增按鈕修正 */
+        .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; cursor: pointer; }
+        .fab svg { width: 30px; height: 30px; stroke: white; stroke-width: 3; stroke-linecap: round; }
 
         /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-body { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .field-label { display: block; font-size: 0.8rem; color: #888; margin: 10px 0 2px 5px; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 5px; border: 1px solid #eee; border-radius: 12px; font-family: inherit; background: #fdfdfd; font-size: 1rem; }
-        .primary-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; font-size: 1rem; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
+        .field-lbl { font-size: 0.8rem; color: #888; margin: 12px 0 4px 4px; display: block; }
+        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 5px; border: 1px solid #eee; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #fcfcfc; }
+        .save-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; font-size: 1rem; }
 
-        /* TODO & Wallet */
-        .todo-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .todo-check { appearance: none; width: 20px; height: 20px; border: 1px solid #4a4a4a; border-radius: 4px; margin-right: 12px; position: relative; }
-        .todo-check:checked { background: #4a4a4a; }
-        .todo-check:checked::after { content: '✓'; color: white; position: absolute; left: 4px; top: -2px; font-size: 14px; }
-        .wallet-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
-        .payer-badge { font-size: 0.7rem; background: #eee; padding: 2px 6px; border-radius: 4px; margin-right: 6px; }
-
-        /* Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
-        .nav-item { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
-        .nav-item.active { color: var(--blue); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
+        .nav-tab.active { color: var(--blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 10px;">
-        <i data-lucide="info" size="22" onclick="alert('Carlos & Ivy 的 2025 名古屋生日之旅')"></i>
-        <h1 style="font-size:1.1rem; letter-spacing:1.5px; font-weight:700;">Carlos Bday Trip</h1>
-        <i data-lucide="shopping-bag" size="22"></i>
-    </div>
+    <h1 style="font-size:1.1rem; letter-spacing:1px; margin:0;">Carlos Bday Trip</h1>
 </header>
 
 <div class="date-slider" id="dateSlider"></div>
+<div class="container" id="mainView"></div>
 
-<div class="container" id="pageContent"></div>
-
-<!-- 浮動新增按鈕 -->
-<button class="add-fab" id="fab" onclick="openAddModal()">
-    <i data-lucide="plus" size="28"></i>
+<button class="fab" onclick="openModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
 </button>
 
 <nav class="bottom-nav">
-    <button class="nav-item active" onclick="switchTab('trip')"><i data-lucide="map"></i>行程</button>
-    <button class="nav-item" onclick="switchTab('todo')"><i data-lucide="check-square"></i>TODO</button>
-    <button class="nav-item" onclick="switchTab('wallet')"><i data-lucide="wallet"></i>記帳</button>
+    <button class="nav-tab active" onclick="goTab('trip')">行程</button>
+    <button class="nav-tab" onclick="goTab('todo')">TODO</button>
+    <button class="nav-tab" onclick="goTab('wallet')">記帳</button>
 </nav>
 
-<!-- 行程/帳務 新增視窗 -->
 <div id="modal" class="modal">
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-content" id="modalInner"></div>
 </div>
 
 <script>
-    let dayIdx = 0, currentTab = 'trip';
-    let trip = JSON.parse(localStorage.getItem('c_trip')) || Array(8).fill().map(()=>[]);
-    let wallet = JSON.parse(localStorage.getItem('c_wall')) || Array(8).fill().map(()=>[]);
-    let todo = JSON.parse(localStorage.getItem('c_todo')) || [];
+    let day = 0, tab = 'trip';
+    const store = (key, val) => val ? localStorage.setItem(key, JSON.stringify(val)) : JSON.parse(localStorage.getItem(key));
+    
+    let tripData = store('c_trip') || Array(8).fill().map(()=>[]);
+    let wallData = store('c_wall') || Array(8).fill().map(()=>[]);
+    let todoData = store('c_todo') || [];
 
-    function saveData() {
-        localStorage.setItem('c_trip', JSON.stringify(trip));
-        localStorage.setItem('c_wall', JSON.stringify(wallet));
-        localStorage.setItem('c_todo', JSON.stringify(todo));
-    }
+    const save = () => { store('c_trip', tripData); store('c_wall', wallData); store('c_todo', todoData); };
 
-    function switchTab(t) { currentTab = t; render(); }
+    function goTab(t) { tab = t; render(); }
 
     function render() {
-        const content = document.getElementById('pageContent');
+        const view = document.getElementById('mainView');
         const slider = document.getElementById('dateSlider');
         slider.innerHTML = '';
         for(let i=0; i<8; i++) {
-            slider.innerHTML += `<button class="date-btn ${i===dayIdx?'active':''}" onclick="dayIdx=${i};render()">12/${24+i} D${i+1}</button>`;
+            slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()">12/${24+i} D${i+1}</button>`;
         }
 
-        document.querySelectorAll('.nav-item').forEach((n,i)=>n.classList.toggle('active', ['trip','todo','wallet'].indexOf(currentTab)===i));
+        document.querySelectorAll('.nav-tab').forEach((n,i)=>n.classList.toggle('active', ['trip','todo','wallet'].indexOf(tab)===i));
 
-        let html = '';
-        if(currentTab === 'trip') {
-            html = `<div id="sort-list">`;
-            trip[dayIdx].forEach((item, i) => {
-                html += `
+        let h = '';
+        if(tab === 'trip') {
+            h = `<div id="drag-list">`;
+            tripData[day].forEach((it, i) => {
+                h += `
                 <div class="card" data-id="${i}">
-                    <button class="del-icon" onclick="deleteTrip(${i})"><i data-lucide="trash-2" size="18"></i></button>
-                    <span class="type-tag">${item.type}</span>
-                    <span class="time-label">${item.time || '未設定時間'}</span>
-                    <div style="font-weight:700; font-size:1.15rem; margin-top:4px;">${item.title}</div>
-                    ${item.addr ? `<div class="addr-text" onclick="goMap('${item.addr}')"><i data-lucide="map-pin" size="12"></i>${item.addr}</div>` : ''}
-                    ${item.note ? `<div style="font-size:0.85rem; color:#666; margin-top:12px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">${item.note}</div>` : ''}
+                    <button class="del-btn" onclick="delIt(${i})">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                    <span class="type-tag">${it.type}</span>
+                    <span class="time-label">🕒 ${it.time || '未定時'}</span>
+                    <div style="font-weight:700; font-size:1.1rem; margin-top:5px;">${it.title}</div>
+                    ${it.addr ? `<div class="addr-link" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
+                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:10px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">${it.note}</div>` : ''}
                 </div>`;
             });
-            html += `</div>`;
-            content.innerHTML = html;
-            new Sortable(document.getElementById('sort-list'), {
-                animation: 150, onEnd: (e) => {
-                    const items = trip[dayIdx];
-                    const [moved] = items.splice(e.oldIndex, 1);
-                    items.splice(e.newIndex, 0, moved);
-                    saveData();
-                }
-            });
-        } else if(currentTab === 'todo') {
-            html = `<div class="card"><h3>TODO List</h3>`;
-            todo.forEach((t, i) => {
-                html += `<div class="todo-item">
-                    <input type="checkbox" class="todo-check">
+            h += `</div>`;
+            view.innerHTML = h;
+            new Sortable(document.getElementById('drag-list'), { animation: 150, onEnd: (e) => {
+                let items = tripData[day];
+                let [moved] = items.splice(e.oldIndex, 1);
+                items.splice(e.newIndex, 0, moved);
+                save();
+            }});
+        } else if(tab === 'todo') {
+            h = `<div class="card"><h3>待辦事項</h3>`;
+            todoData.forEach((t, i) => {
+                h += `<div style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0;">
+                    <input type="checkbox" style="width:20px; height:20px; margin-right:10px;">
                     <span style="flex:1">${t}</span>
-                    <i data-lucide="x" size="16" style="color:#ccc" onclick="todo.splice(${i},1);saveData();render()"></i>
+                    <button onclick="todoData.splice(${i},1);save();render()" style="border:none; background:none; color:#ccc;">✕</button>
                 </div>`;
             });
-            html += `</div>`;
-            content.innerHTML = html;
-        } else if(currentTab === 'wallet') {
-            let jpy = wallet[dayIdx].reduce((a,b)=>a+Number(b.amt),0);
-            html = `<div class="card" style="background:var(--blue); color:white;">
-                <div style="font-size:0.8rem;">Day ${dayIdx+1} 總支出</div>
-                <div style="font-size:1.5rem; font-weight:700;">¥${jpy} / NT$${(jpy*0.215).toFixed(0)}</div>
+            h += `</div>`;
+            view.innerHTML = h;
+        } else if(tab === 'wallet') {
+            let total = wallData[day].reduce((a,b)=>a+Number(b.amt),0);
+            h = `<div class="card" style="background:var(--blue); color:white; text-align:center;">
+                <div style="font-size:0.8rem;">Day ${day+1} 支出總計</div>
+                <div style="font-size:1.5rem; font-weight:700;">¥${total} / NT$${(total*0.215).toFixed(0)}</div>
             </div>`;
-            wallet[dayIdx].forEach((w, i) => {
-                html += `<div class="card">
-                    <div class="wallet-row">
-                        <span><span class="payer-badge">${w.who}</span>${w.name}</span>
-                        <span style="font-weight:700">¥${w.amt} <i data-lucide="trash-2" size="14" style="margin-left:8px; color:#ddd" onclick="wallet[${dayIdx}].splice(${i},1);saveData();render()"></i></span>
+            wallData[day].forEach((w, i) => {
+                h += `<div class="card">
+                    <div style="display:flex; justify-content:space-between">
+                        <span><b style="color:var(--blue)">${w.who}</b> ${w.name}</span>
+                        <span><b>¥${w.amt}</b> <button onclick="wallData[${day}].splice(${i},1);save();render()" style="border:none; background:none; color:#ddd; margin-left:5px;">✕</button></span>
                     </div>
                 </div>`;
             });
-            content.innerHTML = html;
+            view.innerHTML = h;
         }
-        lucide.createIcons();
     }
 
-    function openAddModal() {
-        const body = document.getElementById('modalBody');
-        if(currentTab === 'trip') {
-            body.innerHTML = `
-                <h3 style="margin-top:0">新增行程</h3>
-                <span class="field-label">分類</span>
-                <select id="m_type"><option>景點</option><option>美食</option><option>交通</option><option>航班</option><option>購物</option><option>其他</option></select>
-                <span class="field-label">地點名稱</span>
-                <input type="text" id="m_title" placeholder="例如：名古屋城">
-                <span class="field-label">時間設定</span>
+    function openModal() {
+        const inner = document.getElementById('modalInner');
+        if(tab === 'trip') {
+            inner.innerHTML = `
+                <h3 style="margin:0 0 15px">新增行程</h3>
+                <span class="field-lbl">分類</span>
+                <select id="m_type"><option>景點</option><option>美食</option><option>交通</option><option>航班</option><option>購物</option></select>
+                <span class="field-lbl">地點名稱</span>
+                <input type="text" id="m_title">
+                <span class="field-lbl">時間設定</span>
                 <input type="time" id="m_time">
-                <span class="field-label">地址 (連動地圖)</span>
-                <input type="text" id="m_addr" placeholder="請輸入地址或關鍵字">
-                <span class="field-label">備註內容</span>
-                <textarea id="m_note" rows="3" placeholder="想記下來的事情..."></textarea>
-                <button class="primary-btn" onclick="addTrip()">儲存行程</button>
+                <span class="field-lbl">地址 (點擊卡片連動地圖)</span>
+                <input type="text" id="m_addr">
+                <span class="field-lbl">備註</span>
+                <textarea id="m_note" rows="3"></textarea>
+                <button class="save-btn" onclick="addTr()">儲存行程</button>
                 <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
-        } else if(currentTab === 'todo') {
-            body.innerHTML = `<h3>新增待辦</h3><input type="text" id="m_todo" placeholder="輸入內容..."><button class="primary-btn" onclick="addTodo()">加入清單</button>`;
+        } else if(tab === 'todo') {
+            inner.innerHTML = `<h3>新增 TODO</h3><input type="text" id="m_t"><button class="save-btn" onclick="addTd()">新增</button>`;
         } else {
-            body.innerHTML = `<h3>紀錄支出</h3>
-                <span class="field-label">支付人</span><select id="m_who"><option>Carlos</option><option>Ivy</option></select>
-                <span class="field-label">品項</span><input type="text" id="m_name">
-                <span class="field-label">日幣金額</span><input type="number" id="m_amt">
-                <button class="primary-btn" onclick="addWall()">紀錄</button>`;
+            inner.innerHTML = `<h3>紀錄支出</h3>
+                <select id="m_w_who"><option>Carlos</option><option>Ivy</option></select>
+                <input type="text" id="m_w_n" placeholder="品項">
+                <input type="number" id="m_w_a" placeholder="日幣金額">
+                <button class="save-btn" onclick="addWa()">儲存</button>`;
         }
         document.getElementById('modal').style.display = 'flex';
     }
 
-    function addTrip() {
-        trip[dayIdx].push({
-            type: document.getElementById('m_type').value,
-            title: document.getElementById('m_title').value || '未命名',
-            time: document.getElementById('m_time').value,
-            addr: document.getElementById('m_addr').value,
-            note: document.getElementById('m_note').value
-        });
-        saveData(); render(); closeModal();
-    }
-    function addWall() {
-        wallet[dayIdx].push({ who: document.getElementById('m_who').value, name: document.getElementById('m_name').value, amt: document.getElementById('m_amt').value });
-        saveData(); render(); closeModal();
-    }
-    function addTodo() {
-        todo.push(document.getElementById('m_todo').value);
-        saveData(); render(); closeModal();
-    }
-
-    function deleteTrip(i) { if(confirm('確定要刪除嗎？')) { trip[dayIdx].splice(i,1); saveData(); render(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    function goMap(a) { window.open(`www.google.com{encodeURIComponent(a)}`); }
+    function addTr() {
+        tripData[day].push({ type: document.getElementById('m_type').value, title: document.getElementById('m_title').value || '未命名', time: document.getElementById('m_time').value, addr: document.getElementById('m_addr').value, note: document.getElementById('m_note').value });
+        save(); render(); closeModal();
+    }
+    function addTd() { todoData.push(document.getElementById('m_t').value); save(); render(); closeModal(); }
+    function addWa() {
+        wallData[day].push({ who: document.getElementById('m_w_who').value, name: document.getElementById('m_w_n').value, amt: document.getElementById('m_w_a').value });
+        save(); render(); closeModal();
+    }
+    function delIt(i) { if(confirm('確定刪除？')) { tripData[day].splice(i,1); save(); render(); } }
 
-    switchTab('trip');
+    render();
 </script>
 </body>
 </html>
