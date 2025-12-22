@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Carlos Bday Trip 2025</title>
+    <title>Carlos 生日摘星星</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,12 +14,11 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Zen Maru Gothic', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         
-        header { background: var(--blue); color: white; padding: 50px 20px 15px; text-align: center; position: sticky; top: 0; z-index: 100; }
+        header { background: var(--blue); color: white; padding: 55px 20px 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         
-        /* 星期+日期 橫向滑動 */
-        .date-slider { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 85px; z-index: 90; }
+        .date-slider { display: flex; overflow-x: auto; background: white; padding: 12px; gap: 12px; border-bottom: 1px solid var(--gray); scrollbar-width: none; position: sticky; top: 90px; z-index: 90; }
         .date-slider::-webkit-scrollbar { display: none; }
-        .date-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; height: 75px; border-radius: 15px; background: #f0f0f0; border: none; flex-shrink: 0; }
+        .date-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; height: 75px; border-radius: 18px; background: #f2f2f2; border: none; flex-shrink: 0; }
         .date-btn .wk { font-size: 1.1rem; font-weight: 700; color: #888; }
         .date-btn .dt { font-size: 0.8rem; color: #aaa; }
         .date-btn.active { background: var(--blue); }
@@ -27,36 +26,38 @@
 
         .container { padding: 15px; }
         
-        /* 天氣資訊 */
-        .weather-info { background: white; border-radius: 15px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
-        
-        /* 航班特殊卡片 */
-        .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
+        /* 天氣區域 */
+        .weather-info { background: white; border-radius: 18px; padding: 15px; margin-bottom: 18px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; cursor: pointer; }
+        .weather-icon { font-size: 2.2rem; }
+        .city-tag { font-size: 0.7rem; background: var(--blue); color: white; padding: 2px 6px; border-radius: 5px; margin-bottom: 3px; display: inline-block; }
+
         /* 行程卡片 */
-        .card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: grab; }
-        .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 3px 10px; border-radius: 12px; margin-bottom: 8px; display: inline-block; }
-        .addr-text { font-size: 0.8rem; color: var(--blue); margin-top: 8px; display: flex; align-items: center; gap: 5px; text-decoration: underline; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; }
+        .type-tag { font-size: 0.7rem; color: white; background: var(--accent); padding: 4px 12px; border-radius: 12px; margin-bottom: 8px; display: inline-block; }
+        .addr-text { font-size: 0.85rem; color: var(--blue); margin-top: 10px; display: flex; align-items: center; gap: 5px; text-decoration: underline; font-weight: 500; }
 
-        /* 浮動新增按鈕 */
-        .fab { position: fixed; bottom: 90px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: none; z-index: 500; }
-        .fab svg { width: 30px; height: 30px; stroke: white; stroke-width: 3; }
+        /* 航班卡片 */
+        .flight-card { background: linear-gradient(135deg, #4a6a75 0%, #94a7ae 100%); color: white; border-radius: 20px; padding: 22px; margin-bottom: 15px; box-shadow: 0 6px 20px rgba(148, 167, 174, 0.3); }
 
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; width: 92%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
-        label { font-size: 0.8rem; color: #888; margin-top: 12px; display: block; }
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #eee; border-radius: 10px; font-family: inherit; font-size: 1rem; background: #fafafa; }
-        .save-btn { background: var(--blue); color: white; border: none; padding: 16px; border-radius: 12px; width: 100%; margin-top: 20px; font-weight: 700; }
+        .fab { position: fixed; bottom: 95px; right: 25px; width: 65px; height: 65px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(0,0,0,0.2); border: none; z-index: 500; }
+        .fab svg { width: 32px; height: 32px; stroke: white; stroke-width: 3; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
-        .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-family: inherit; }
+        /* Modal 修正 */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-content { background: white; width: 92%; max-height: 85vh; border-radius: 30px; padding: 28px; overflow-y: auto; }
+        label { font-size: 0.85rem; color: #888; margin-top: 15px; display: block; padding-left: 5px; }
+        input, select, textarea { width: 100%; height: 50px; padding: 12px; margin-top: 5px; border: 1px solid #eee; border-radius: 12px; font-family: inherit; font-size: 1rem; background: #fafafa; display: block; }
+        textarea { height: auto; }
+        .save-btn { background: var(--blue); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; margin-top: 25px; font-weight: 700; font-size: 1.1rem; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-tab { flex: 1; border:none; background:none; color: #bbb; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; font-family: inherit; }
         .nav-tab.active { color: var(--blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header><h1 style="font-size:1.1rem; letter-spacing:1px; margin:0;">Carlos Bday Trip</h1></header>
+<header><h1 style="font-size:1.2rem; letter-spacing:2px; margin:0; font-weight:700;">Carlos 生日摘星星</h1></header>
 
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
@@ -78,11 +79,11 @@
     const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const store = (k, v) => v ? localStorage.setItem(k, JSON.stringify(v)) : JSON.parse(localStorage.getItem(k));
     
-    let tripData = store('c_trip_2025_v2') || Array(8).fill().map(()=>[]);
+    let tripData = store('c_trip_2025_star') || Array(8).fill().map(()=>[]);
     let todoData = store('c_todo') || [];
     let wallData = store('c_wall_global') || [];
 
-    const save = () => { store('c_trip_2025_v2', tripData); store('c_todo', todoData); store('c_wall_global', wallData); };
+    const save = () => { store('c_trip_2025_star', tripData); store('c_todo', todoData); store('c_wall_global', wallData); };
 
     function goTab(t) { tab = t; render(); }
 
@@ -107,18 +108,30 @@
 
         let h = '';
         if(tab === 'trip') {
-            h += `<div class="weather-info"><span style="font-size:2rem">❄️</span><div><div style="font-weight:700">Nagoya 12/${24+dayIdx}</div><div style="font-size:0.8rem;color:#888;">預估 4°C / 體感 1°C</div></div></div>`;
+            // 天氣與地區連動
+            let isTokyo = dayIdx >= 4; // 12/28 是索引 4
+            let city = isTokyo ? '東京 Tokyo' : '名古屋 Nagoya';
+            let weatherUrl = isTokyo ? 'weather.yahoo.co.jp' : 'weather.yahoo.co.jp';
+            
+            h += `<div class="weather-info" onclick="window.open('${weatherUrl}')">
+                    <span class="weather-icon">❄️</span>
+                    <div>
+                        <span class="city-tag">${city}</span>
+                        <div style="font-weight:700">預估 3°C ~ 10°C</div>
+                        <div style="font-size:0.8rem;color:#888;">點擊查看 Yahoo 日本氣象詳細預報</div>
+                    </div>
+                  </div>`;
             
             if(dayIdx === 0) {
                 h += `
-                <div class="flight-card" onclick="window.open('www.google.com')">
-                    <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">華航 CI154 | 12/24</div>
+                <div class="flight-card" onclick="openGMap('桃園國際機場')">
+                    <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">華航 CI154 | 12/24 DEPARTURE</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:1.8rem; font-weight:700;">TPE</span>
                         <span style="font-size:1.2rem;">✈️</span>
                         <span style="font-size:1.8rem; font-weight:700;">NGO</span>
                     </div>
-                    <div style="font-size:0.9rem; margin-top:10px;">07:35起飛 - 11:05抵達 (2.5hr)</div>
+                    <div style="font-size:0.95rem; margin-top:10px; font-weight:500;">07:35 起飛 - 11:05 抵達 (2.5hr)</div>
                 </div>`;
             }
 
@@ -126,13 +139,13 @@
             tripData[dayIdx].forEach((it, i) => {
                 h += `
                 <div class="card">
-                    <button style="position:absolute;right:10px;top:10px;border:none;background:none;color:#ddd;padding:10px;" onclick="event.stopPropagation();openEdit(${i})">Edit</button>
+                    <button style="position:absolute;right:15px;top:15px;border:none;background:none;color:#ddd;padding:5px;" onclick="event.stopPropagation();openEdit(${i})">Edit</button>
                     <span class="type-tag">${it.type}</span>
-                    <div style="font-weight:700; font-size:1.2rem;">${it.title}</div>
-                    <div style="font-size:0.85rem; color:#888; margin-top:5px;">🕒 ${it.time || '--:--'} | 營業: ${it.hours || '無'}</div>
-                    ${it.ticket ? `<div style="font-size:0.8rem; color:var(--accent); margin-top:3px;">🎟️ 門票: ${it.ticket}</div>` : ''}
-                    ${it.addr ? `<div class="addr-text" onclick="window.open('www.google.com{encodeURIComponent(it.addr)}')">📍 ${it.addr}</div>` : ''}
-                    ${it.note ? `<div style="font-size:0.85rem; color:#666; margin-top:12px; border-top:1px dashed #eee; padding-top:10px; white-space:pre-line;">✨ ${it.note}</div>` : ''}
+                    <div style="font-weight:700; font-size:1.2rem; color:var(--text);">${it.title}</div>
+                    <div style="font-size:0.9rem; color:#888; margin-top:8px;">🕒 抵達: ${it.time || '--:--'} | 營業: ${it.hours || '見官網'}</div>
+                    ${it.ticket ? `<div style="font-size:0.85rem; color:var(--accent); font-weight:700; margin-top:5px;">🎟️ 門票: ${it.ticket}</div>` : ''}
+                    ${it.addr ? `<div class="addr-text" onclick="openGMap('${it.addr}')">📍 ${it.addr}</div>` : ''}
+                    ${it.note ? `<div style="font-size:0.9rem; color:#666; margin-top:12px; border-top:1px dashed #eee; padding-top:12px; white-space:pre-line; line-height:1.5;">✨ ${it.note}</div>` : ''}
                 </div>`;
             });
             h += `</div>`;
@@ -146,24 +159,40 @@
                 }});
             }
         } else {
-            view.innerHTML = `<p style="text-align:center; padding:50px; color:#ccc;">功能維護中...</p>`;
+            view.innerHTML = `<p style="text-align:center; padding:100px 20px; color:#ccc; font-size:0.9rem;">TODO 與 記帳頁面維持原樣<br>請由此處切換至行程頁面測試</p>`;
         }
+    }
+
+    function openGMap(address) {
+        // 使用 comgooglemaps:// 喚起 App，若失敗則回退到 https 連結
+        const url = `comgooglemaps://?q=${encodeURIComponent(address)}`;
+        window.location.href = url;
+        setTimeout(() => {
+            window.open(`www.google.com{encodeURIComponent(address)}`);
+        }, 500);
     }
 
     function openModal() {
         editIdx = null;
         const inner = document.getElementById('modalInner');
         inner.innerHTML = `
-            <h3 style="margin:0">新增行程</h3>
-            <label>分類</label><select id="m_type"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>其他</option></select>
-            <label>名稱</label><input type="text" id="m_title" placeholder="景點或店名">
-            <label>抵達時間</label><input type="time" id="m_time">
-            <label>地址 (連動 Google Maps)</label><input type="text" id="m_addr" placeholder="請輸入地址或關鍵字">
-            <label>營業時間</label><input type="text" id="m_hours" placeholder="e.g. 09:00 - 18:00">
-            <label>門票費用</label><input type="text" id="m_ticket" placeholder="e.g. 1500 JPY">
-            <label>特色 & 備註</label><textarea id="m_note" rows="3"></textarea>
-            <button class="save-btn" onclick="saveTr()">儲存行程</button>
-            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
+            <h3 style="margin:0 0 10px; color:var(--blue);">新增行程項目</h3>
+            <label>行程分類</label>
+            <select id="m_type"><option>景點</option><option>住宿</option><option>美食</option><option>購物</option><option>其他</option></select>
+            <label>地點/項目名稱</label>
+            <input type="text" id="m_title" placeholder="請輸入地點名稱">
+            <label>抵達時間</label>
+            <input type="time" id="m_time" style="width:100%;">
+            <label>地址 (將連動 Google Maps App)</label>
+            <input type="text" id="m_addr" placeholder="輸入地址或關鍵字">
+            <label>營業時間 / 資訊</label>
+            <input type="text" id="m_hours" placeholder="例如: 09:00 - 18:00">
+            <label>預計門票費用</label>
+            <input type="text" id="m_ticket" placeholder="例如: 2000 JPY">
+            <label>特色 & 行前備註</label>
+            <textarea id="m_note" rows="3" placeholder="有什麼要注意的呢？"></textarea>
+            <button class="save-btn" onclick="saveTr()">確認儲存</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px; font-size:0.9rem;">取消返回</button>`;
         document.getElementById('modal').style.display = 'flex';
     }
 
@@ -172,24 +201,31 @@
         const it = tripData[dayIdx][i];
         const inner = document.getElementById('modalInner');
         inner.innerHTML = `
-            <h3>編輯行程</h3>
-            <label>分類</label><select id="m_type"><option ${it.type==='景點'?'selected':''}>景點</option><option ${it.type==='住宿'?'selected':''}>住宿</option><option ${it.type==='美食'?'selected':''}>美食</option><option ${it.type==='購物'?'selected':''}>購物</option><option ${it.type==='其他'?'selected':''}>其他</option></select>
-            <label>名稱</label><input type="text" id="m_title" value="${it.title}">
-            <label>抵達時間</label><input type="time" id="m_time" value="${it.time}">
-            <label>地址</label><input type="text" id="m_addr" value="${it.addr || ''}">
-            <label>營業時間</label><input type="text" id="m_hours" value="${it.hours || ''}">
-            <label>門票費用</label><input type="text" id="m_ticket" value="${it.ticket || ''}">
-            <label>特色 & 備註</label><textarea id="m_note" rows="3">${it.note || ''}</textarea>
+            <h3 style="margin:0 0 10px; color:var(--blue);">編輯行程項目</h3>
+            <label>行程分類</label>
+            <select id="m_type"><option ${it.type==='景點'?'selected':''}>景點</option><option ${it.type==='住宿'?'selected':''}>住宿</option><option ${it.type==='美食'?'selected':''}>美食</option><option ${it.type==='購物'?'selected':''}>購物</option><option ${it.type==='其他'?'selected':''}>其他</option></select>
+            <label>地點/項目名稱</label>
+            <input type="text" id="m_title" value="${it.title}">
+            <label>抵達時間</label>
+            <input type="time" id="m_time" value="${it.time}">
+            <label>地址</label>
+            <input type="text" id="m_addr" value="${it.addr || ''}">
+            <label>營業時間 / 資訊</label>
+            <input type="text" id="m_hours" value="${it.hours || ''}">
+            <label>預計門票費用</label>
+            <input type="text" id="m_ticket" value="${it.ticket || ''}">
+            <label>特色 & 行前備註</label>
+            <textarea id="m_note" rows="3">${it.note || ''}</textarea>
             <button class="save-btn" onclick="saveTr()">儲存變更</button>
-            <button onclick="delTr()" style="background:#ff6b6b; color:white; border:none; padding:12px; border-radius:12px; width:100%; margin-top:10px;">刪除行程</button>
-            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px;">取消</button>`;
+            <button onclick="delTr()" style="background:#ff6b6b; color:white; border:none; padding:12px; border-radius:15px; width:100%; margin-top:12px; font-weight:700;">刪除此項目</button>
+            <button onclick="closeModal()" style="width:100%; border:none; background:none; color:#aaa; margin-top:15px; font-size:0.9rem;">取消返回</button>`;
         document.getElementById('modal').style.display = 'flex';
     }
 
     function saveTr() {
         const data = { 
             type: document.getElementById('m_type').value, 
-            title: document.getElementById('m_title').value || '未命名', 
+            title: document.getElementById('m_title').value || '未命名項目', 
             time: document.getElementById('m_time').value, 
             addr: document.getElementById('m_addr').value,
             hours: document.getElementById('m_hours').value,
@@ -201,7 +237,7 @@
         save(); render(); closeModal();
     }
 
-    function delTr() { if(confirm('確定刪除？')) { tripData[dayIdx].splice(editIdx, 1); save(); render(); closeModal(); } }
+    function delTr() { if(confirm('確定要刪除這項行程嗎？')) { tripData[dayIdx].splice(editIdx, 1); save(); render(); closeModal(); } }
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     render();
