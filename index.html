@@ -23,39 +23,37 @@
             margin: 0;
             padding-bottom: 120px;
             -webkit-font-smoothing: antialiased;
-        }
        
-        /* --- 頂部區塊：新標題設定 --- */
-        .top-bar {
-            position: sticky;
-            top: 0;
-            background: linear-gradient(135deg, #a4bdc5 0%, #7d9ba6 100%);
-            color: white;
-            padding: 65px 25px 35px;
-            z-index: 200;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            text-align: left;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
+        /* --- 頂部區塊：加入插圖配置 --- */
+        .top-bar {
+            position: sticky; top: 0;
+            background: linear-gradient(135deg, #a4bdc5 0%, #7d9ba6 100%);
+            color: white; padding: 60px 20px 30px; z-index: 200;
+            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; align-items: flex-end; justify-content: space-between;
+            overflow: visible; /* 讓圖片可以稍微超出邊界 */
+        }
+        .header-text { flex: 1; padding-right: 10px; z-index: 2; }
         .app-main-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            margin: 0;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 1.45rem; font-weight: 800; letter-spacing: 0.5px;
+            margin: 0; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .app-sub-title {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            margin-top: 8px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            line-height: 1.4;
+            font-size: 0.75rem; opacity: 0.95; margin-top: 8px;
+            font-weight: 500; line-height: 1.4;
         }
        
-        /* --- 日期滑桿：毛玻璃感 --- */
+        /* 插圖容器 */
+        .header-illustration {
+            width: 130px; height: auto; margin-bottom: -15px; /* 往下偏移營造立體感 */
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+            z-index: 1;
+        }
+        .header-illustration img { width: 100%; height: auto; }
+       
+/* --- 日期滑桿：毛玻璃感 --- */
         .date-slider {
             display: flex;
             overflow-x: auto;
