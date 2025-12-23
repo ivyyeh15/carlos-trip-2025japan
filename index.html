@@ -120,21 +120,18 @@
     let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
     /**
-     * 優化後的導航功能：新增詢問視窗 + 直接跳轉保底
+     * 手機版專用：喚起 Google Maps App 導航
      */
-    function goMap(e, addr) { 
-        if (e && e.stopPropagation) e.stopPropagation(); 
-        if (!addr) return; 
-
-        // 1. 彈出確認視窗 (解決誤觸與彈窗攔截)
-        const confirmNav = confirm("是否要開啟 Google Maps 導航至：\n" + addr);
+    function triggerNavigation(addr) {
+        if (!addr) return;
        
-        if (confirmNav) {
-            // 2. 組合網址
-            const targetUrl = "www.google.com" + encodeURIComponent(addr.trim());
+        // 彈出詢問視窗
+        if (confirm("是否開啟 Google Maps App 進行導航？\n目的地：" + addr)) {
+            // 使用 Google Maps Directions API 格式，這在手機上最容易觸發 App 喚起
+            const navUrl = "www.google.com" + encodeURIComponent(addr.trim()) + "&travelmode=driving";
            
-            // 3. 直接在當前頁面跳轉 (電腦與手機最穩定的連動方式)
-            window.location.href = targetUrl;
+            // 在手機瀏覽器中，直接跳轉網址會觸發系統詢問「是否在 Google Maps 中開啟」
+            window.location.href = navUrl;
         }
     }
 
@@ -206,11 +203,10 @@
                     </div></div>`;
             }
             tripData[day].forEach((item, idx) => {
-                const safeLoc = (item.loc || "").replace(/'/g, "\\'");
                 h += `<div class="card" onclick="openModal(${idx})">
                     <span class="type-tag tag-${item.type}">${item.type}</span>
                     <div style="font-weight:700; font-size:1.15rem; color:#333;">${item.time} ${item.title}</div>
-                    ${item.loc ? `<div class="addr-link" onclick="goMap(event, '${safeLoc}')">📍 ${item.loc}</div>` : ''}
+                    ${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}
                     ${item.img ? `<div class="img-view-btn" onclick="showBigImg(event, '${item.img}')">📃 相關圖片紀錄</div>` : ''}
                     ${item.note ? `<div style="font-size:0.85rem; color:#777; margin-top:12px; background:#f9f9f9; padding:12px; border-radius:12px; border-left:4px solid var(--blue);">${item.note}</div>` : ''}
                     <div style="margin-top:15px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${idx})">刪除</button></div>
@@ -225,8 +221,7 @@
             });
         } else if(tab === 'back') {
             backData.forEach((item, idx) => {
-                const safeLoc = (item.loc || "").replace(/'/g, "\\'");
-                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link" onclick="goMap(event, '${safeLoc}')">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
+                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
             });
         } else if(tab === 'wallet') {
             let totalAll = wallData.reduce((a,b)=>a+Number(b.amt), 0);
@@ -249,6 +244,14 @@
             h += `<div style="background:linear-gradient(135deg, #7d9ba6, #5c7b84); color:white; padding:25px; border-radius:25px; margin-top:30px; text-align:center;"><div style="font-size:0.8rem; opacity:0.9;">總預算累計</div><div style="font-size:2rem; font-weight:900; margin:5px 0;">¥ ${fmt(totalAll)}</div><div style="font-size:1rem; opacity:0.8; font-weight:700;">約 NT$ ${fmt(Math.round(totalAll * exchangeRate))}</div></div>`;
         }
         view.innerHTML = h || `<div style="text-align:center; color:#ccc; margin-top:80px; font-weight:700;">目前沒有資料</div>`;
+
+        // 綁定導航事件
+        document.querySelectorAll('.nav-trigger').forEach(el => {
+            el.onclick = function(e) {
+                e.stopPropagation();
+                triggerNavigation(this.getAttribute('data-addr'));
+            };
+        });
     }
 
     function openModal(idx = null) {
