@@ -120,18 +120,30 @@
     let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
     /**
-     * 手機版專用：喚起 Google Maps App 導航
+     * iOS Safari 強化版：強行喚起 Google Maps App 導航
      */
     function triggerNavigation(addr) {
         if (!addr) return;
        
-        // 彈出詢問視窗
-        if (confirm("是否開啟 Google Maps App 進行導航？\n目的地：" + addr)) {
-            // 使用 Google Maps Directions API 格式，這在手機上最容易觸發 App 喚起
-            const navUrl = "www.google.com" + encodeURIComponent(addr.trim()) + "&travelmode=driving";
+        if (confirm("即將開啟 Google Maps App 導航至：\n" + addr)) {
+            const encodedAddr = encodeURIComponent(addr.trim());
            
-            // 在手機瀏覽器中，直接跳轉網址會觸發系統詢問「是否在 Google Maps 中開啟」
-            window.location.href = navUrl;
+            // 方案 A: iOS 專用 App Schema (直接喚起 App 導航模式)
+            const iosAppSchema = "comgooglemaps://?daddr=" + encodedAddr + "&directionsmode=driving";
+           
+            // 方案 B: 官方 Universal Links (保底跳轉)
+            const webUrl = "www.google.com" + encodedAddr + "&travelmode=driving";
+
+            // 執行跳轉策略
+            const start = Date.now();
+            window.location.href = iosAppSchema;
+
+            // 0.5秒後檢查是否還在原網頁，若是則切換到網頁版 URL
+            setTimeout(function() {
+                if (Date.now() - start < 1000) {
+                    window.location.href = webUrl;
+                }
+            }, 500);
         }
     }
 
@@ -203,10 +215,12 @@
                     </div></div>`;
             }
             tripData[day].forEach((item, idx) => {
+                // 處理引號避免 HTML 毀損
+                const attrLoc = (item.loc || "").replace(/"/g, "&quot;");
                 h += `<div class="card" onclick="openModal(${idx})">
                     <span class="type-tag tag-${item.type}">${item.type}</span>
                     <div style="font-weight:700; font-size:1.15rem; color:#333;">${item.time} ${item.title}</div>
-                    ${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}
+                    ${item.loc ? `<div class="addr-link nav-trigger" data-addr="${attrLoc}">📍 ${item.loc}</div>` : ''}
                     ${item.img ? `<div class="img-view-btn" onclick="showBigImg(event, '${item.img}')">📃 相關圖片紀錄</div>` : ''}
                     ${item.note ? `<div style="font-size:0.85rem; color:#777; margin-top:12px; background:#f9f9f9; padding:12px; border-radius:12px; border-left:4px solid var(--blue);">${item.note}</div>` : ''}
                     <div style="margin-top:15px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${idx})">刪除</button></div>
@@ -221,7 +235,8 @@
             });
         } else if(tab === 'back') {
             backData.forEach((item, idx) => {
-                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
+                const attrLoc = (item.loc || "").replace(/"/g, "&quot;");
+                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link nav-trigger" data-addr="${attrLoc}">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
             });
         } else if(tab === 'wallet') {
             let totalAll = wallData.reduce((a,b)=>a+Number(b.amt), 0);
