@@ -18,14 +18,11 @@
        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding-bottom: 120px;
+            background: var(--bg); color: var(--text); margin: 0; padding-bottom: 120px;
             -webkit-font-smoothing: antialiased;
-       
         }
-        /* --- 頂部區塊：加入插圖配置 --- */
+       
+        /* --- 頂部區塊：包含標題與插圖 --- */
         .top-bar {
             position: sticky; top: 0;
             background: linear-gradient(135deg, #a4bdc5 0%, #7d9ba6 100%);
@@ -33,7 +30,7 @@
             border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             display: flex; align-items: flex-end; justify-content: space-between;
-            overflow: visible; /* 讓圖片可以稍微超出邊界 */
+            overflow: visible;
         }
         .header-text { flex: 1; padding-right: 10px; z-index: 2; }
         .app-main-title {
@@ -44,49 +41,41 @@
             font-size: 0.75rem; opacity: 0.95; margin-top: 8px;
             font-weight: 500; line-height: 1.4;
         }
-       
-        /* 插圖容器 */
         .header-illustration {
-            width: 130px; height: auto; margin-bottom: -15px; /* 往下偏移營造立體感 */
+            width: 130px; height: auto; margin-bottom: -15px;
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
             z-index: 1;
         }
-        .header-illustration img { width: 100%; height: auto; }
-       
-/* --- 日期滑桿：毛玻璃感 --- */
+        .header-illustration img { width: 100%; height: auto; border-radius: 10px; }
+
+        /* --- 日期滑桿：毛玻璃感 --- */
         .date-slider {
-            display: flex;
-            overflow-x: auto;
-            background: rgba(248, 250, 251, 0.85);
-            backdrop-filter: blur(15px);
-            padding: 15px;
-            gap: 12px;
-            position: sticky;
-            top: 150px;
-            z-index: 90;
-            scrollbar-width: none;
+            display: flex; overflow-x: auto; background: rgba(248, 250, 251, 0.85);
+            backdrop-filter: blur(15px); padding: 15px; gap: 12px;
+            position: sticky; top: 155px; z-index: 90; scrollbar-width: none;
         }
         .date-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 55px;
-            height: 70px;
-            padding: 10px;
-            border-radius: 18px;
-            background: white;
-            border: 1px solid rgba(0,0,0,0.03);
-            flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            display: flex; flex-direction: column; align-items: center; min-width: 55px;
+            height: 70px; padding: 10px; border-radius: 18px; background: white;
+            border: 1px solid rgba(0,0,0,0.03); flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
             transition: all 0.2s ease;
         }
-        .date-btn.active {
-            background: var(--blue);
-            color: white;
-            box-shadow: 0 8px 15px rgba(125, 155, 166, 0.3);
-        }
-        .date-btn span:first-child { font-size:0.7rem; opacity: 0.8; margin-bottom: 2px; }
+        .date-btn.active { background: var(--blue); color: white; box-shadow: 0 8px 15px rgba(125, 155, 166, 0.3); }
+        .date-btn span:first-child { font-size:0.7rem; opacity: 0.8; }
         .date-btn span:last-child { font-size:1.1rem; font-weight:700; }
+
+        /* --- 內容容器與卡片 --- */
+        .container { padding: 15px; max-width: 500px; margin: 0 auto; min-height: 50vh; }
+        .card {
+            background: white; border-radius: 22px; padding: 20px; margin-bottom: 15px;
+            box-shadow: var(--shadow); position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .card:active { transform: scale(0.97); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        .type-tag { font-size: 0.7rem; color: white; background: #bbb; padding: 3px 10px; border-radius: 50px; margin-bottom: 8px; display: inline-block; font-weight: 600; }
+        .tag-餐廳 { background: #e67e22; } .tag-咖啡廳 { background: #d4a373; } .tag-景點 { background: #3498db; }
+        .tag-購物 { background: #9b59b6; } .tag-住宿 { background: #2ecc71; } .tag-交通 { background: #f1c40f; }
 
         .flight-bubble {
             background: rgba(255, 255, 255, 0.45) !important;
@@ -95,92 +84,36 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); font-weight: bold; text-align: center;
         }
 
-        .container { padding: 15px; max-width: 500px; margin: 0 auto; min-height: 50vh; }
-       
-        .card {
-            background: white;
-            border-radius: 22px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: var(--shadow);
-            position: relative;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .card:active {
-            transform: scale(0.97);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-       
-        .wallet-subtotal {
-            font-size: 1.1rem; color: var(--blue); font-weight: 800;
-            margin: 20px 0 10px 5px; border-left: 4px solid var(--blue); padding-left: 10px;
-        }
+        /* --- 記帳樣式 --- */
+        .wallet-subtotal { font-size: 1.1rem; color: var(--blue); font-weight: 800; margin: 20px 0 10px 5px; border-left: 4px solid var(--blue); padding-left: 10px; }
         .amount-twd { font-size: 0.75rem; color: #999; }
-       
         .split-cards { display: flex; gap: 10px; margin-top: 10px; }
-        .split-card {
-            flex: 1; background: white; border-radius: 20px; padding: 18px;
-            box-shadow: var(--shadow); text-align: center; border: 1px solid #eee;
-        }
+        .split-card { flex: 1; background: white; border-radius: 20px; padding: 18px; box-shadow: var(--shadow); text-align: center; border: 1px solid #eee; }
         .split-name { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 5px; }
         .split-amt { font-size: 1rem; font-weight: 800; color: var(--blue); }
 
+        /* --- TODO 樣式 (文字靠左) --- */
         .todo-item { display: flex; align-items: center; justify-content: flex-start; gap: 15px; text-align: left; }
         .todo-text { font-weight: 600; flex: 1; display: block; }
-        input[type="checkbox"] { width: 22px; height: 22px; margin: 0; cursor: pointer; flex-shrink: 0; }
 
-        .type-tag {
-            font-size: 0.7rem; color: white; background: #bbb;
-            padding: 3px 10px; border-radius: 50px; margin-bottom: 8px;
-            display: inline-block; font-weight: 600;
-        }
-        .tag-餐廳 { background: #e67e22; } .tag-咖啡廳 { background: #d4a373; } .tag-景點 { background: #3498db; }
-        .tag-購物 { background: #9b59b6; } .tag-住宿 { background: #2ecc71; } .tag-交通 { background: #f1c40f; }
-       
         .del-btn { color: #ccc; font-size: 0.75rem; border: none; background: none; cursor: pointer; padding: 5px; }
         .photo-trigger { display: inline-block; margin-top: 8px; cursor: pointer; font-size: 1.4rem; }
-       
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px);
-            display: flex; border-top: 1px solid #eee; z-index: 1000;
-        }
-        .nav-tab {
-            flex: 1; border: none; background: none; color: #aaa;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease;
-        }
-        .nav-tab.active { color: var(--blue); font-weight: bold; transform: translateY(-2px); }
-        .nav-tab:active { transform: scale(0.95); }
-       
-        .fab {
-            position: fixed; bottom: 95px; right: 20px;
-            width: 60px; height: 60px; background: var(--blue);
-            border-radius: 50%; border: none; z-index: 500;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .fab:active { transform: scale(0.9); }
-       
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content {
-            background: white; width: 100%; max-width: 400px; border-radius: 25px;
-            padding: 25px; max-height: 85vh; overflow-y: auto;
-        }
-       
-        input, select, textarea {
-            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 12px;
-            font-size: 16px; font-family: inherit; height: 50px; background: #fafafa;
-        }
-        input[type="time"] { display: block; min-height: 50px; -webkit-appearance: listbox; }
-        textarea { height: 100px; resize: none; }
-        .save-btn {
-            background: var(--blue); color: white; border: none; width: 100%;
-            padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 15px; cursor: pointer;
-        }
-        .save-btn:active { background: var(--dark-blue); }
 
+        /* --- 底部導航 --- */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); display: flex; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-tab { flex: 1; border: none; background: none; color: #aaa; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; transition: all 0.2s ease; }
+        .nav-tab.active { color: var(--blue); font-weight: bold; transform: translateY(-2px); }
+       
+        .fab { position: fixed; bottom: 95px; right: 20px; width: 60px; height: 60px; background: var(--blue); border-radius: 50%; border: none; z-index: 500; box-shadow: 0 8px 20px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .fab:active { transform: scale(0.9); }
+
+        /* --- 彈窗與圖片檢視 --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; max-height: 85vh; overflow-y: auto; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 12px; font-size: 16px; background: #fafafa; }
+        input[type="time"] { display: block; min-height: 50px; -webkit-appearance: listbox; }
+        .save-btn { background: var(--blue); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+       
         #imgViewer { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         #imgViewer img { max-width: 90%; max-height: 75%; border-radius: 10px; }
         .close-viewer { color: white; margin-top: 25px; border: 1px solid white; padding: 10px 40px; border-radius: 50px; cursor: pointer; }
@@ -189,9 +122,15 @@
 <body>
 
 <div class="top-bar">
-    <div class="app-main-title">The Celebration We Deserve</div>
-    <div class="app-sub-title">Carlos' Birthday Trip<br>(Yes, We Planned It Around Food)</div>
+    <div class="header-text">
+        <div class="app-main-title">The Celebration We Deserve</div>
+        <div class="app-sub-title">Carlos' Birthday Trip<br>(Yes, We Planned It Around Food)</div>
+    </div>
+    <div class="header-illustration">
+        <img src="./hero.png" alt="Hero Illustration" onerror="this.style.display='none'">
+    </div>
 </div>
+
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
 
@@ -297,8 +236,8 @@
             });
             h += `<div class="card" style="background:var(--blue); color:white; text-align:center;">總計: ￥${formatNum(grandTotal)} / NT$ ${formatNum(Math.round(grandTotal*exchangeRate))}</div>`;
             h += `<div class="split-cards">
-                    <div class="split-card"><div class="split-name">Carlos 支付</div><div class="split-amt">￥${formatNum(cTotal)}</div><div class="amount-twd">NT$ ${formatNum(Math.round(cTotal*exchangeRate))}</div></div>
-                    <div class="split-card"><div class="split-name">Ivy 支付</div><div class="split-amt">￥${formatNum(iTotal)}</div><div class="amount-twd">NT$ ${formatNum(Math.round(iTotal*exchangeRate))}</div></div>
+                    <div class="split-card"><div class="split-name">Carlos 支付</div><div class="split-amt">￥${formatNum(cTotal)}</div></div>
+                    <div class="split-card"><div class="split-name">Ivy 支付</div><div class="split-amt">￥${formatNum(iTotal)}</div></div>
                   </div>`;
         } else if(tab === 'todo') {
             todoData.forEach((item, idx) => {
@@ -332,7 +271,6 @@
                     <div id="p_h" style="display:${tempImg?'none':'block'}; color:#aaa;">📸 上傳照片</div>
                 </div>
                 <input type="file" id="f_img" style="display:none" onchange="handleImg(this.files[0])">
-                ${tempImg ? '<button onclick="removeTempImg()" style="color:red; border:none; background:none; width:100%; margin-top:10px;">移除照片</button>':''}
                 <button class="save-btn" onclick="saveTrip()">儲存同步</button>
                 <button class="save-btn" style="background:#eee; color:#666;" onclick="closeModal()">取消</button>`;
         } else if(tab === 'wallet') {
@@ -353,38 +291,4 @@
                 const c=document.createElement('canvas'); const MAX=600; let w=i.width, h=i.height;
                 if(w>MAX){ h*=MAX/w; w=MAX; } c.width=w; c.height=h;
                 c.getContext('2d').drawImage(i,0,0,w,h); tempImg = c.toDataURL('image/jpeg', 0.6);
-                document.getElementById('p_v').src = tempImg; document.getElementById('p_v').style.display='block'; document.getElementById('p_h').style.display='none';
-            }; i.src=e.target.result;
-        }; r.readAsDataURL(f);
-    }
-    function removeTempImg() { tempImg=""; document.getElementById('p_v').style.display='none'; document.getElementById('p_h').style.display='block'; }
-
-    function saveTrip() {
-        const o = { type: document.getElementById('f_type').value, title: document.getElementById('f_title').value, time: document.getElementById('f_time').value, loc: document.getElementById('f_loc').value, img: tempImg, note: document.getElementById('f_note').value };
-        if(editingIdx!==null) tripData[day][editingIdx] = o; else tripData[day].push(o);
-        tripData[day].sort((a,b)=>a.time.localeCompare(b.time)); sync(); closeModal();
-    }
-    function saveWall() {
-        const o = { date: document.getElementById('w_date').value, desc: document.getElementById('w_d').value, amt: document.getElementById('w_a').value, payer: document.getElementById('w_p').value, method: document.getElementById('w_m').value };
-        if(editingIdx!==null) wallData[editingIdx] = o; else wallData.push(o); sync(); closeModal();
-    }
-    function saveTodo() {
-        const t = document.getElementById('t_t').value;
-        if(editingIdx!==null) todoData[editingIdx].txt = t; else todoData.push({txt:t, done:false}); sync(); closeModal();
-    }
-    function saveBack() {
-        const o = { title: document.getElementById('b_t').value, loc: document.getElementById('b_l').value };
-        if(editingIdx!==null) backData[editingIdx] = o; else backData.push(o); sync(); closeModal();
-    }
-
-    function toggleTodo(i) { todoData[i].done = !todoData[i].done; sync(); }
-    function deleteItem(i) { if(confirm('刪除？')){ tripData[day].splice(i,1); sync(); } }
-    function deleteWall(i) { if(confirm('刪除？')){ wallData.splice(i,1); sync(); } }
-    function deleteTodo(i) { if(confirm('刪除？')){ todoData.splice(i,1); sync(); } }
-    function deleteBack(i) { if(confirm('刪除？')){ backData.splice(i,1); sync(); } }
-    function closeModal() { document.getElementById('modal').style.display='none'; editingIdx=null; tempImg=""; }
-
-    render();
-</script>
-</body>
-</html>
+                document.getElementById('p_v').src = tempImg
