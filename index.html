@@ -120,30 +120,34 @@
     let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
     /**
-     * iOS Safari 強化版：強行喚起 Google Maps App 導航
+     * 終極導航邏輯：成功喚起 App 後攔截原網頁跳轉
      */
     function triggerNavigation(addr) {
         if (!addr) return;
        
         if (confirm("即將開啟 Google Maps App 導航至：\n" + addr)) {
             const encodedAddr = encodeURIComponent(addr.trim());
-           
-            // 方案 A: iOS 專用 App Schema (直接喚起 App 導航模式)
             const iosAppSchema = "comgooglemaps://?daddr=" + encodedAddr + "&directionsmode=driving";
-           
-            // 方案 B: 官方 Universal Links (保底跳轉)
             const webUrl = "www.google.com" + encodedAddr + "&travelmode=driving";
 
-            // 執行跳轉策略
-            const start = Date.now();
+            let timer;
+            const clearTimer = () => { if(timer) clearTimeout(timer); };
+
+            // 監聽網頁狀態，若成功切換至 App 則取消保底跳轉
+            window.addEventListener('pagehide', clearTimer, { once: true });
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') clearTimer();
+            }, { once: true });
+
+            // 嘗試喚起 App
             window.location.href = iosAppSchema;
 
-            // 0.5秒後檢查是否還在原網頁，若是則切換到網頁版 URL
-            setTimeout(function() {
-                if (Date.now() - start < 1000) {
+            // 1秒後檢查，若仍留在 Safari (前景) 才跳轉至網頁版
+            timer = setTimeout(function() {
+                if (!document.hidden) {
                     window.location.href = webUrl;
                 }
-            }, 500);
+            }, 1000);
         }
     }
 
@@ -215,7 +219,6 @@
                     </div></div>`;
             }
             tripData[day].forEach((item, idx) => {
-                // 處理引號避免 HTML 毀損
                 const attrLoc = (item.loc || "").replace(/"/g, "&quot;");
                 h += `<div class="card" onclick="openModal(${idx})">
                     <span class="type-tag tag-${item.type}">${item.type}</span>
@@ -260,7 +263,7 @@
         }
         view.innerHTML = h || `<div style="text-align:center; color:#ccc; margin-top:80px; font-weight:700;">目前沒有資料</div>`;
 
-        // 綁定導航事件
+        // 綁定導航事件 (確保每次 render 後重新監聽)
         document.querySelectorAll('.nav-trigger').forEach(el => {
             el.onclick = function(e) {
                 e.stopPropagation();
