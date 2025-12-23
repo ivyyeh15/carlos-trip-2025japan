@@ -28,13 +28,13 @@
         .card { background: white; border-radius: 18px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; border: 1px solid #efefef; cursor: pointer; overflow: hidden; }
         .card:active { background-color: #fcfcfc; }
        
-        /* 圖片按鈕樣式 */
-        .img-view-btn { display: inline-flex; align-items: center; gap: 5px; background: #f0f4f5; color: var(--blue); padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; border: 1px solid #dce4e6; font-weight: 700; }
+        /* 圖片檢視按鈕樣式 */
+        .img-view-btn { display: inline-flex; align-items: center; gap: 5px; background: #f0f4f5; color: var(--blue); padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; border: 1px solid #dce4e6; font-weight: 700; cursor: pointer; }
        
-        /* 圖片燈箱/全螢幕預覽 */
+        /* 全螢幕圖片燈箱 */
         .img-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
-        .img-overlay img { max-width: 100%; max-height: 80vh; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .close-img-btn { position: absolute; top: 40px; right: 20px; width: 40px; height: 40px; background: white; color: black; border-radius: 50%; border: none; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .img-overlay img { max-width: 100%; max-height: 85vh; border-radius: 10px; object-fit: contain; }
+        .close-img-btn { position: absolute; top: 40px; right: 20px; width: 40px; height: 40px; background: white; color: black; border-radius: 50%; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 3100; cursor: pointer; }
 
         .weather-info { background: white; border-radius: 18px; padding: 15px; margin-bottom: 18px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
         .city-tag { font-size: 0.7rem; background: var(--blue); color: white; padding: 2px 6px; border-radius: 5px; margin-bottom: 3px; display: inline-block; }
@@ -52,11 +52,8 @@
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-content { background: white; width: 90%; max-height: 85vh; border-radius: 25px; padding: 25px; overflow-y: auto; }
-       
         input:not([type="checkbox"]):not([type="file"]), select, textarea { width: 100%; height: 48px; padding: 12px; margin: 4px 0 12px 0; border: 1px solid #eee; border-radius: 10px; font-size: 1rem; }
-        textarea { height: auto; }
         .field-lbl { display: block; font-size: 0.85rem; color: #666; font-weight: 500;}
-
         .save-btn { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 700; margin-top: 10px; }
         .cancel-btn { width: 100%; border: none; background: none; color: #aaa; margin-top: 10px; padding: 10px; }
 
@@ -74,6 +71,7 @@
 <div class="date-slider" id="dateSlider"></div>
 <div class="container" id="mainView"></div>
 
+<!-- 全螢幕圖片檢視層 -->
 <div id="imgOverlay" class="img-overlay" onclick="this.style.display='none'">
     <button class="close-img-btn" onclick="event.stopPropagation(); document.getElementById('imgOverlay').style.display='none'">✕</button>
     <img id="overlayImg" src="" onclick="event.stopPropagation()">
@@ -107,19 +105,21 @@
     let wallData = store('c_wall_all') || [];
     let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
-    // 修復後的地圖跳轉功能
+    // 優化後的地圖跳轉：使用標準 URL 並打開新分頁
     function goMap(e, addr) {
         e.stopPropagation();
         if (!addr) return;
-        const encodedAddr = encodeURIComponent(addr);
-        const url = `www.google.com{encodedAddr}`;
+        // 這種格式能穩定喚起 Google Map App，否則會開啟網頁版
+        const url = `www.google.com{encodeURIComponent(addr)}`;
         window.open(url, '_blank');
     }
 
+    // 顯示大圖邏輯
     function showBigImg(e, src) {
         e.stopPropagation();
         const overlay = document.getElementById('imgOverlay');
-        document.getElementById('overlayImg').src = src;
+        const img = document.getElementById('overlayImg');
+        img.src = src;
         overlay.style.display = 'flex';
     }
 
@@ -144,19 +144,15 @@
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 const MAX_WIDTH = 800;
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-                canvas.width = width;
-                canvas.height = height;
+                let width = img.width, height = img.height;
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                canvas.width = width; canvas.height = height;
                 canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                 tempImgBase64 = canvas.toDataURL('image/jpeg', 0.7);
                 if (document.getElementById('img_preview')) {
                     document.getElementById('img_preview').src = tempImgBase64;
                     document.getElementById('img_preview').style.display = 'block';
+                    document.getElementById('img_placeholder').style.display = 'none';
                 }
             };
             img.src = e.target.result;
@@ -166,8 +162,7 @@
 
     function triggerImgUpload() {
         const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'image/*';
+        fileInput.type = 'file'; fileInput.accept = 'image/*';
         fileInput.onchange = (e) => { handleImg(e.target.files[0]); };
         fileInput.click();
     }
@@ -187,13 +182,13 @@
             title.innerText = "行程規劃";
             slider.innerHTML = '';
             for(let i=0; i<8; i++){
-                let d = new Date(2025, 11, 24+i);
+                let d = new Date(2025, 11, 24+i); // 12月
                 slider.innerHTML += `<button class="date-btn ${i===day?'active':''}" onclick="day=${i};render()"><span class="wk">${weekdays[d.getDay()]}</span><span>${d.getDate()}</span></button>`;
             }
 
             let isTokyo = day >= 4;
             let city = isTokyo ? '東京 Tokyo' : '名古屋 Nagoya';
-            h += `<div class="weather-info" onclick="window.open('https://weather.yahoo.co.jp')">
+            h += `<div class="weather-info" onclick="window.open('https://weather.yahoo.co.jp', '_blank')">
                     <span class="weather-icon">❄️</span>
                     <div><span class="city-tag">${city}</span><div style="font-weight:700">預估 3°C ~ 10°C</div></div>
                   </div>`;
@@ -205,9 +200,8 @@
                         <span style="font-size:1.8rem; font-weight:700;">TPE</span><span style="font-size:1.2rem;">✈️</span><span style="font-size:1.8rem; font-weight:700;">NGO</span>
                     </div><div style="font-size:0.95rem; margin-top:10px;">07:35 起飛 - 11:05 抵達 (2.5hr)</div></div>`;
             }
-
             if(day === 7) {
-                 h += `<div class="card flight-card" onclick="goMap(event, '成田國際機場')">
+                h += `<div class="card flight-card" onclick="goMap(event, '成田國際機場')">
                     <div style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">華航 CI109 | 12/31 RETURN</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:1.8rem; font-weight:700;">NRT</span><span style="font-size:1.2rem;">✈️</span><span style="font-size:1.8rem; font-weight:700;">TPE</span>
@@ -218,7 +212,7 @@
                 h += `<div class="card" onclick="openModal(${idx})">
                     <span class="type-tag">${item.type || '景點'}</span>
                     <div style="font-weight:700; font-size:1.1rem; margin-top:5px;">${item.time} ${item.title}</div>
-                    ${item.img ? `<div class="img-view-btn" onclick="showBigImg(event, '${item.img}')">🖼️ 查看圖片</div>` : ''}
+                    ${item.img ? `<div class="img-view-btn" onclick="showBigImg(event, '${item.img}')">📝</div>` : ''}
                     ${item.loc ? `<div class="addr-link" onclick="goMap(event, '${item.loc}')">📍 ${item.loc}</div>` : ''}
                     ${item.note ? `<div style="font-size:0.85rem; color:#666; margin-top:8px; background:#f9f9f9; padding:8px; border-radius:8px;">${item.note}</div>` : ''}
                     <div style="margin-top:10px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${idx})">刪除</button></div>
@@ -240,7 +234,7 @@
             backData.forEach((item, idx) => {
                 h += `<div class="card" onclick="openModal(${idx})">
                         <div style="font-weight:700;">${item.title}</div>
-                        ${item.loc ? `<div class="addr-link" onclick="goMap(event, '${item.title} ${item.loc}')">📍 ${item.loc}</div>` : ''}
+                        ${item.loc ? `<div class="addr-link" onclick="goMap(event, '${item.loc}')">📍 ${item.loc}</div>` : ''}
                         <div style="margin-top:10px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div>
                       </div>`;
             });
@@ -294,12 +288,12 @@
                 <label class="field-lbl">抵達時間</label><input id="f_time" type="time" value="${data.time}">
                 <label class="field-lbl">地址</label><input id="f_loc" value="${data.loc}">
                 <label class="field-lbl">備註</label><textarea id="f_note" rows="2">${data.note}</textarea>
-                <label class="field-lbl">圖片上傳 (點擊上傳)</label>
+                <label class="field-lbl">圖片上傳</label>
                 <div onclick="triggerImgUpload()" style="cursor:pointer; border: 2px dashed #eee; padding: 15px; text-align: center; border-radius: 10px;">
                    <img id="img_preview" src="${tempImgBase64}" style="max-width:100%; height:auto; display:${tempImgBase64?'block':'none'}; margin:0 auto;">
                    <div id="img_placeholder" style="display:${tempImgBase64?'none':'block'}">點擊此處上傳圖片 📸</div>
                 </div>
-                ${tempImgBase64 ? '<button onclick="tempImgBase64=\'\'; document.getElementById(\'img_preview\').style.display=\'none\'; document.getElementById(\'img_placeholder\').style.display=\'block\'; this.style.display=\'none\';" style="background:none; border:none; color:red; font-size:0.8rem; margin-top:5px;">移除圖片</button>' : ''}
+                ${tempImgBase64 ? '<button id="del_img_btn" onclick="tempImgBase64=\'\'; document.getElementById(\'img_preview\').style.display=\'none\'; document.getElementById(\'img_placeholder\').style.display=\'block\'; this.style.display=\'none\';" style="background:none; border:none; color:red; font-size:0.8rem; margin-top:5px;">移除圖片</button>' : ''}
                 <button class="save-btn" onclick="saveTrip()">${idx !== null ? '更新' : '儲存'}</button>
                 <button class="cancel-btn" onclick="closeModal()">取消</button>`;
         } else if(tab === 'todo') {
@@ -307,27 +301,14 @@
             inner.innerHTML = `<h3>${idx !== null ? '修改' : '新增'} TODO</h3><input id="f1" value="${data.txt}"><button class="save-btn" onclick="saveTodo()">儲存</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
         } else if(tab === 'back') {
             const data = idx !== null ? backData[idx] : {title:'', loc:''};
-            inner.innerHTML = `
-                <h3>${idx !== null ? '修改' : '新增'}備案</h3>
-                <label class="field-lbl">名稱</label><input id="f1" value="${data.title}">
-                <label class="field-lbl">地址</label><input id="f2" value="${data.loc}">
-                <button class="save-btn" onclick="saveBack()">儲存</button>
-                <button class="cancel-btn" onclick="closeModal()">取消</button>`;
+            inner.innerHTML = `<h3>${idx !== null ? '修改' : '新增'}備案</h3><label class="field-lbl">名稱</label><input id="f1" value="${data.title}"><label class="field-lbl">地址</label><input id="f2" value="${data.loc}"><button class="save-btn" onclick="saveBack()">儲存</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
         } else if(tab === 'wallet') {
             const data = idx !== null ? wallData[idx] : {date:'2025-12-24', method:'現金', payer:'Carlos', desc:'', amt:''};
-            inner.innerHTML = `
-                <h3>${idx !== null ? '修改' : '新增'}記帳</h3>
-                <label class="field-lbl">日期</label><input id="w1" type="date" value="${data.date}">
-                <label class="field-lbl">付款方式</label><select id="w2">${['現金','刷卡','交通卡'].map(m=>`<option ${data.method===m?'selected':''}>${m}</option>`).join('')}</select>
-                <label class="field-lbl">支付人</label><select id="w3">${['Carlos','Ivy'].map(p=>`<option ${data.payer===p?'selected':''}>${p}</option>`).join('')}</select>
-                <label class="field-lbl">說明</label><input id="w4" value="${data.desc}">
-                <label class="field-lbl">金額(JPY)</label><input id="w5" type="text" oninput="formatAmount(this)" value="${data.amt ? fmt(data.amt) : ''}" placeholder="日幣金額">
-                <button class="save-btn" onclick="saveWall()">儲存帳目</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
+            inner.innerHTML = `<h3>${idx !== null ? '修改' : '新增'}記帳</h3><label class="field-lbl">日期</label><input id="w1" type="date" value="${data.date}"><label class="field-lbl">付款方式</label><select id="w2">${['現金','刷卡','交通卡'].map(m=>`<option ${data.method===m?'selected':''}>${m}</option>`).join('')}</select><label class="field-lbl">支付人</label><select id="w3">${['Carlos','Ivy'].map(p=>`<option ${data.payer===p?'selected':''}>${p}</option>`).join('')}</select><label class="field-lbl">說明</label><input id="w4" value="${data.desc}"><label class="field-lbl">金額(JPY)</label><input id="w5" type="text" oninput="formatAmount(this)" value="${data.amt ? fmt(data.amt) : ''}"><button class="save-btn" onclick="saveWall()">儲存帳目</button><button class="cancel-btn" onclick="closeModal()">取消</button>`;
         }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; editingIdx = null; tempImgBase64 = ""; }
-   
     function saveTrip() {
         const item = { type: document.getElementById('f_type').value, title: document.getElementById('f_title').value, time: document.getElementById('f_time').value, loc: document.getElementById('f_loc').value, note: document.getElementById('f_note').value, img: tempImgBase64 };
         if(!item.title) return;
