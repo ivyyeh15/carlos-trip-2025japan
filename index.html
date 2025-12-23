@@ -120,34 +120,18 @@
     let exchangeRate = parseFloat(localStorage.getItem('c_rate')) || 0.21;
 
     /**
-     * 終極導航邏輯：成功喚起 App 後攔截原網頁跳轉
+     * 手機版專用：喚起 Google Maps App 導航
      */
     function triggerNavigation(addr) {
         if (!addr) return;
        
-        if (confirm("即將開啟 Google Maps App 導航至：\n" + addr)) {
-            const encodedAddr = encodeURIComponent(addr.trim());
-            const iosAppSchema = "comgooglemaps://?daddr=" + encodedAddr + "&directionsmode=driving";
-            const webUrl = "www.google.com" + encodedAddr + "&travelmode=driving";
-
-            let timer;
-            const clearTimer = () => { if(timer) clearTimeout(timer); };
-
-            // 監聽網頁狀態，若成功切換至 App 則取消保底跳轉
-            window.addEventListener('pagehide', clearTimer, { once: true });
-            window.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'hidden') clearTimer();
-            }, { once: true });
-
-            // 嘗試喚起 App
-            window.location.href = iosAppSchema;
-
-            // 1秒後檢查，若仍留在 Safari (前景) 才跳轉至網頁版
-            timer = setTimeout(function() {
-                if (!document.hidden) {
-                    window.location.href = webUrl;
-                }
-            }, 1000);
+        // 彈出詢問視窗
+        if (confirm("是否開啟 Google Maps App 進行導航？\n目的地：" + addr)) {
+            // 使用 Google Maps Directions API 格式，這在手機上最容易觸發 App 喚起
+            const navUrl = "www.google.com" + encodeURIComponent(addr.trim()) + "&travelmode=driving";
+           
+            // 在手機瀏覽器中，直接跳轉網址會觸發系統詢問「是否在 Google Maps 中開啟」
+            window.location.href = navUrl;
         }
     }
 
@@ -219,11 +203,10 @@
                     </div></div>`;
             }
             tripData[day].forEach((item, idx) => {
-                const attrLoc = (item.loc || "").replace(/"/g, "&quot;");
                 h += `<div class="card" onclick="openModal(${idx})">
                     <span class="type-tag tag-${item.type}">${item.type}</span>
                     <div style="font-weight:700; font-size:1.15rem; color:#333;">${item.time} ${item.title}</div>
-                    ${item.loc ? `<div class="addr-link nav-trigger" data-addr="${attrLoc}">📍 ${item.loc}</div>` : ''}
+                    ${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}
                     ${item.img ? `<div class="img-view-btn" onclick="showBigImg(event, '${item.img}')">📃 相關圖片紀錄</div>` : ''}
                     ${item.note ? `<div style="font-size:0.85rem; color:#777; margin-top:12px; background:#f9f9f9; padding:12px; border-radius:12px; border-left:4px solid var(--blue);">${item.note}</div>` : ''}
                     <div style="margin-top:15px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${idx})">刪除</button></div>
@@ -238,8 +221,7 @@
             });
         } else if(tab === 'back') {
             backData.forEach((item, idx) => {
-                const attrLoc = (item.loc || "").replace(/"/g, "&quot;");
-                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link nav-trigger" data-addr="${attrLoc}">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
+                h += `<div class="card" onclick="openModal(${idx})"><div style="font-weight:700; font-size:1.1rem; margin-bottom:8px;">${item.title}</div>${item.loc ? `<div class="addr-link nav-trigger" data-addr="${item.loc}">📍 ${item.loc}</div>` : ''}<div style="margin-top:12px; text-align:right;"><button class="del-btn" onclick="event.stopPropagation(); deleteBack(${idx})">刪除</button></div></div>`;
             });
         } else if(tab === 'wallet') {
             let totalAll = wallData.reduce((a,b)=>a+Number(b.amt), 0);
@@ -263,7 +245,7 @@
         }
         view.innerHTML = h || `<div style="text-align:center; color:#ccc; margin-top:80px; font-weight:700;">目前沒有資料</div>`;
 
-        // 綁定導航事件 (確保每次 render 後重新監聽)
+        // 綁定導航事件
         document.querySelectorAll('.nav-trigger').forEach(el => {
             el.onclick = function(e) {
                 e.stopPropagation();
