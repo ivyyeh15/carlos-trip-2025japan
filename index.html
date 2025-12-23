@@ -291,4 +291,37 @@
                 const c=document.createElement('canvas'); const MAX=600; let w=i.width, h=i.height;
                 if(w>MAX){ h*=MAX/w; w=MAX; } c.width=w; c.height=h;
                 c.getContext('2d').drawImage(i,0,0,w,h); tempImg = c.toDataURL('image/jpeg', 0.6);
-                document.getElementById('p_v').src = tempImg
+                document.getElementById('p_v').src = tempImg; document.getElementById('p_v').style.display='block'; document.getElementById('p_h').style.display='none';
+            }; i.src=e.target.result;
+        }; r.readAsDataURL(f);
+    }
+
+    function saveTrip() {
+        const o = { type: document.getElementById('f_type').value, title: document.getElementById('f_title').value, time: document.getElementById('f_time').value, loc: document.getElementById('f_loc').value, img: tempImg, note: document.getElementById('f_note').value };
+        if(editingIdx!==null) tripData[day][editingIdx] = o; else tripData[day].push(o);
+        tripData[day].sort((a,b)=>a.time.localeCompare(b.time)); sync(); closeModal();
+    }
+    function saveWall() {
+        const o = { date: document.getElementById('w_date').value, desc: document.getElementById('w_d').value, amt: document.getElementById('w_a').value, payer: document.getElementById('w_p').value, method: document.getElementById('w_m').value };
+        if(editingIdx!==null) wallData[editingIdx] = o; else wallData.push(o); sync(); closeModal();
+    }
+    function saveTodo() {
+        const t = document.getElementById('t_t').value;
+        if(editingIdx!==null) todoData[editingIdx].txt = t; else todoData.push({txt:t, done:false}); sync(); closeModal();
+    }
+    function saveBack() {
+        const o = { title: document.getElementById('b_t').value, loc: document.getElementById('b_l').value };
+        if(editingIdx!==null) backData[editingIdx] = o; else backData.push(o); sync(); closeModal();
+    }
+
+    function toggleTodo(i) { todoData[i].done = !todoData[i].done; sync(); }
+    function deleteItem(i) { if(confirm('刪除？')){ tripData[day].splice(i,1); sync(); } }
+    function deleteWall(i) { if(confirm('刪除？')){ wallData.splice(i,1); sync(); } }
+    function deleteTodo(i) { if(confirm('刪除？')){ todoData.splice(i,1); sync(); } }
+    function deleteBack(i) { if(confirm('刪除？')){ backData.splice(i,1); sync(); } }
+    function closeModal() { document.getElementById('modal').style.display='none'; editingIdx=null; tempImg=""; }
+
+    render();
+</script>
+</body>
+</html>
